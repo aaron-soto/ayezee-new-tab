@@ -59,4 +59,14 @@ export const links = [
     label: "GitHub",
     icon: "/images/logos/github.svg",
   },
+  {
+    href: "http://localhost:3000",
+    label: "NextJS Local",
+    icon: "/images/logos/nextjs.svg",
+  },
+  {
+    href: "http://localhost:4321",
+    label: "Astro Local",
+    icon: "/images/logos/astro.svg",
+  },
 ];
