@@ -35,12 +35,12 @@ export const links = [
     icon: "/images/logos/youtube.svg",
   },
   {
-    href: "https://facebook.com/ayezeeweb",
+    href: "https://www.facebook.com/profile.php?id=100089266597260",
     label: "Facebook",
     icon: "/images/logos/facebook.svg",
   },
   {
-    href: "https://instagram.com/ayezeeweb",
+    href: "https://www.instagram.com/ayezeewebdesigns/",
     label: "Instagram",
     icon: "/images/logos/instagram.svg",
   },
