@@ -69,4 +69,9 @@ export const links = [
     label: "Astro Local",
     icon: "/images/logos/astro.svg",
   },
+  {
+    href: "https://www.notion.so/AyeZee-Web-Designs-1fcb27f0589b80a8aaa7c509cff5848a",
+    label: "Notion",
+    icon: "/images/logos/notion.svg",
+  },
 ];
