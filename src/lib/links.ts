@@ -74,4 +74,9 @@ export const links = [
     label: "Notion",
     icon: "/images/logos/notion.svg",
   },
+  {
+    href: "https://www.pinterest.com/aaronmsoto/_saved/",
+    label: "Pinterest",
+    icon: "/images/logos/pinterest.svg",
+  },
 ];
