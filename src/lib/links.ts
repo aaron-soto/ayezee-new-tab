@@ -79,4 +79,9 @@ export const links = [
     label: "Pinterest",
     icon: "/images/logos/pinterest.svg",
   },
+  {
+    href: "https://genqrcode.com/",
+    label: "QR Code Gen",
+    icon: "/images/logos/qr.svg",
+  },
 ];

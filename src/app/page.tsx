@@ -1,15 +1,15 @@
 import AyeZeeLogo from "@/components/AyeZeeLogo";
 import Image from "next/image";
 import { TimeDisplay } from "@/components/TimeDisplay";
-import { getTimeBasedGreeting } from "@/lib/utils";
 import { links } from "@/lib/links";
+import Greeting from "@/components/greeting";
 
 export default async function Home() {
   return (
     <div className="p-4 ">
       <AyeZeeLogo className="mb-12 w-[200px] h-auto" />
 
-      <h2 className="mb-8 text-2xl font-bold">{getTimeBasedGreeting()}, Aaron</h2>
+      <Greeting />
 
       <div className="absolute bottom-4 right-4">
         <TimeDisplay />
