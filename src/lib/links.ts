@@ -84,4 +84,9 @@ export const links = [
     label: "QR Code Gen",
     icon: "/images/logos/qr.svg",
   },
+  {
+    href: "https://meet.google.com/landing",
+    label: "Google Meet",
+    icon: "/images/logos/google-meet.svg",
+  },
 ];
