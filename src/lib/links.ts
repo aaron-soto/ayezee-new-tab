@@ -116,6 +116,11 @@ export const links: Link[] = [
         label: "Google Meet",
         icon: "/images/logos/google-meet.svg",
       },
+      {
+        href: "https://resend.com/emails",
+        label: "Resend",
+        icon: "/images/logos/resend.svg",
+      },
     ],
   },
   {
