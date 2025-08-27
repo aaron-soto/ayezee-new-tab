@@ -17,11 +17,7 @@ export const links: Link[] = [
     label: "Cloudflare",
     icon: "/images/logos/cloudflare.svg",
   },
-  {
-    href: "https://dashboard.stripe.com/dashboard",
-    label: "Stripe",
-    icon: "/images/logos/stripe.svg",
-  },
+
   {
     href: "https://chatgpt.com/?model=gpt-4o",
     label: "ChatGPT",
@@ -155,6 +151,34 @@ export const links: Link[] = [
         href: "https://outlook.office.com/mail/?sourceId=info%40ayezeewebdesigns.com&email=info%40ayezeewebdesigns.com",
         label: "info@ayezeewebdesigns.com",
         icon: "/images/logos/outlook.svg",
+      },
+    ],
+  },
+  {
+    href: "https://dashboard.stripe.com/dashboard",
+    label: "Stripe",
+    type: IconType.List,
+    icon: "/images/logos/stripe.svg",
+    children: [
+      {
+        href: "https://dashboard.stripe.com/b/acct_1Mefw9EgoMTyCvdO",
+        label: "AyeZee Web Designs",
+        icon: "/images/logos/stripe.svg",
+      },
+      {
+        href: "https://dashboard.stripe.com/b/acct_1RgqDuANnarndnSU",
+        label: "C3 Security & Logistics",
+        icon: "/images/logos/stripe.svg",
+      },
+      {
+        href: "https://dashboard.stripe.com/b/acct_1PwOyo05fdCYBUXU",
+        label: "Purpose After Sports",
+        icon: "/images/logos/stripe.svg",
+      },
+      {
+        href: "https://dashboard.stripe.com/b/acct_1RFNHYIOEtOeXCq3",
+        label: "Roping Finder",
+        icon: "/images/logos/stripe.svg",
       },
     ],
   },
