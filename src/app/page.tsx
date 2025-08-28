@@ -7,7 +7,7 @@ import { links } from "@/lib/links";
 
 export default async function Home() {
   return (
-    <div className="p-4 ">
+    <div className="p-4">
       <AyeZeeLogo className="mb-4 md:mb-8 w-[200px] h-auto" />
 
       <Greeting />
@@ -16,7 +16,7 @@ export default async function Home() {
         <TimeDisplay />
       </div>
 
-      <div className="flex flex-wrap items-center justify-start gap-y-10 md:gap-y-12 gap-x-4 md:gap-x-6">
+      <div className="flex flex-wrap items-center justify-center w-full gap-y-10 md:gap-y-12 gap-x-4 md:gap-x-8">
         {links.map((link) => (
           <LinkTile key={link.label} link={link as LinkItem} />
         ))}

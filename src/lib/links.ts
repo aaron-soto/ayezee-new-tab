@@ -58,6 +58,44 @@ export const links: Link[] = [
     href: "https://github.com/aaron-soto",
     label: "GitHub",
     icon: "/images/logos/github.svg",
+    type: IconType.List,
+    children: [
+      {
+        href: "https://github.com/aaron-soto/ayezee-new-tab",
+        label: "New Tab App",
+        icon: "/images/logos/github.svg",
+      },
+      {
+        href: "https://github.com/aaron-soto/copper-country-music-fest",
+        label: "Copper Country Music Fest",
+        icon: "/images/logos/github.svg",
+      },
+      {
+        href: "https://github.com/aaron-soto/ayezee-frontend",
+        label: "AyeZee Frontend",
+        icon: "/images/logos/github.svg",
+      },
+      {
+        href: "https://github.com/aaron-soto/security-astro",
+        label: "C3 Security & Logistics",
+        icon: "/images/logos/github.svg",
+      },
+      {
+        href: "https://github.com/aaron-soto/gerrish-jewelers",
+        label: "Gerrish Jewelers",
+        icon: "/images/logos/github.svg",
+      },
+      {
+        href: "https://github.com/aaron-soto/william-douglas",
+        label: "William Douglas",
+        icon: "/images/logos/github.svg",
+      },
+      {
+        href: "https://github.com/aaron-soto/valley-humane-society",
+        label: "Valley Humane Society",
+        icon: "/images/logos/github.svg",
+      },
+    ],
   },
 
   {
@@ -72,7 +110,7 @@ export const links: Link[] = [
   },
   {
     href: "https://genqrcode.com/",
-    label: "QR Code Gen",
+    label: "QR Code",
     icon: "/images/logos/qr.svg",
   },
   {
@@ -111,11 +149,6 @@ export const links: Link[] = [
         href: "https://meet.google.com/landing",
         label: "Google Meet",
         icon: "/images/logos/google-meet.svg",
-      },
-      {
-        href: "https://resend.com/emails",
-        label: "Resend",
-        icon: "/images/logos/resend.svg",
       },
     ],
   },
@@ -181,5 +214,20 @@ export const links: Link[] = [
         icon: "/images/logos/stripe.svg",
       },
     ],
+  },
+  {
+    href: "https://resend.com/emails",
+    label: "Resend",
+    icon: "/images/logos/resend.svg",
+  },
+  {
+    href: "https://ayezeewebdesigns.com",
+    label: "AyeZee Web Designs",
+    icon: "/images/logos/ayezee.svg",
+  },
+  {
+    href: "https://www.va.gov",
+    label: "VA",
+    icon: "/images/logos/VA.svg",
   },
 ];

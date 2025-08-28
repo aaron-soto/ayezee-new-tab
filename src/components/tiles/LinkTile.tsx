@@ -37,6 +37,31 @@ export default function LinkTile({ link }: Props) {
     };
   }, [open]);
 
+  React.useEffect(() => {
+    if (!open || !menuRef.current) return;
+
+    const el = menuRef.current;
+    const rect = el.getBoundingClientRect();
+    const margin = 16; // 1rem
+
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (rect.left < margin) {
+      offsetX = margin - rect.left;
+    } else if (rect.right > window.innerWidth - margin) {
+      offsetX = window.innerWidth - margin - rect.right;
+    }
+
+    if (rect.top < margin) {
+      offsetY = margin - rect.top;
+    } else if (rect.bottom > window.innerHeight - margin) {
+      offsetY = window.innerHeight - margin - rect.bottom;
+    }
+
+    el.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  }, [open]);
+
   const clearPressTimer = () => {
     if (pressTimerRef.current) {
       window.clearTimeout(pressTimerRef.current);
@@ -119,7 +144,7 @@ export default function LinkTile({ link }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         style={{ WebkitUserDrag: "none", WebkitTouchCallout: "none" } as any}
       />
-      <span className="absolute text-sm font-medium -translate-x-1/2 select-none left-1/2 -bottom-6 text-nowrap">
+      <span className="absolute w-20 text-sm font-medium text-center -translate-x-1/2 select-none left-1/2 top-[calc(100%+0.5rem)] text-balance line-clamp-2">
         {link.label}
       </span>
     </>
@@ -129,7 +154,11 @@ export default function LinkTile({ link }: Props) {
     <div className="relative flex flex-col items-center group">
       {/* Desktop hover menu */}
       {isList && (
-        <div className="absolute left-4 top-[calc(100%+1rem)] hidden md:group-hover:block md:group-focus-within:block">
+        <div
+          onMouseEnter={() => setOpen(true)}
+          onMouseLeave={() => setOpen(false)}
+          className="absolute left-4 top-[calc(100%+1rem)] hidden md:group-hover:block md:group-focus-within:block"
+        >
           <div className="relative z-[100] w-72 rounded-lg bg-neutral-800 p-2 shadow-lg">
             {link.children!.map((child) => (
               <a
@@ -160,7 +189,7 @@ export default function LinkTile({ link }: Props) {
         // For lists, render BOTH: a button (touch) layered over an anchor (desktop)
         <div className="relative">
           {/* Desktop clickable anchor under the hood */}
-          <a href={link.href} className="relative flex items-center hidden drop-shadow-2xl md:flex">
+          <a href={link.href} className="relative items-center hidden drop-shadow-2xl md:flex">
             {TileInner}
           </a>
 
@@ -193,7 +222,7 @@ export default function LinkTile({ link }: Props) {
       {isList && open && (
         <div
           ref={menuRef}
-          className="absolute left-4 top-[calc(100%+1rem)] w-72 rounded-lg bg-neutral-800 p-2 shadow-lg md:hidden [touch-action:none]"
+          className="absolute left-4 top-[calc(100%+1rem)] z-[100] w-72 rounded-lg bg-neutral-800 p-2 shadow-lg md:hidden [touch-action:none]"
           onContextMenu={(e) => e.preventDefault()}
         >
           {link.children!.map((child, i) => (
