@@ -28,20 +28,16 @@ export default function LinkTile({ link }: Props) {
     const el = menuRef.current;
     if (!el) return;
 
-    // Reset transform before measuring
     el.style.transform = "translate(0px, 0px)";
-
     const rect = el.getBoundingClientRect();
-    const margin = 16; // 1rem
+    const margin = 16;
 
-    const overflowLeft = margin - rect.left; // positive => needs to move right
-    const overflowRight = rect.right - (window.innerWidth - margin); // positive => needs to move left
-
+    const overflowLeft = margin - rect.left;
+    const overflowRight = rect.right - (window.innerWidth - margin);
     let deltaX = 0;
     if (overflowLeft > 0) deltaX = overflowLeft;
     else if (overflowRight > 0) deltaX = -overflowRight;
 
-    // Optional vertical correction (kept minimal; adjust if needed)
     const overflowTop = margin - rect.top;
     const overflowBottom = rect.bottom - (window.innerHeight - margin);
     let deltaY = 0;
@@ -57,7 +53,6 @@ export default function LinkTile({ link }: Props) {
     let raf1 = 0;
     let raf2 = 0;
 
-    // Wait for the flyout to render, then measure on the next frame
     raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
         positionMenu();
@@ -70,7 +65,6 @@ export default function LinkTile({ link }: Props) {
     window.addEventListener("resize", handleResize, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
 
-    // React to internal content size changes too
     const el = menuRef.current;
     const ro = el ? new ResizeObserver(() => positionMenu()) : null;
     if (el && ro) ro.observe(el);
@@ -89,11 +83,12 @@ export default function LinkTile({ link }: Props) {
       <svg
         viewBox="0 0 160 160"
         fill="currentColor"
-        className="transition-all duration-100 ease-in-out cursor-pointer select-none size-18 min-h-16 min-w-16 text-neutral-800 active:scale-95 group-hover:scale-105 group-hover:text-neutral-700"
+        className="transition-all duration-100 ease-in-out cursor-pointer select-none size-18 min-h-16 min-w-16 text-neutral-800 active:scale-95 group-hover/tile:scale-105 group-hover/tile:text-neutral-700"
         aria-hidden="true"
       >
         <path d="M 0 80 C 0 0, 0 0, 80 0 S 160 0, 160 80, 160 160 80 160, 0 160, 0 80" />
       </svg>
+
       <Image
         src={link.icon}
         alt={link.label}
@@ -104,23 +99,19 @@ export default function LinkTile({ link }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         style={{ WebkitUserDrag: "none", WebkitTouchCallout: "none" } as any}
       />
-      <span className="absolute w-20 text-xs font-medium text-neutral-400 group-hover:text-neutral-200 transition-colors text-center -translate-x-1/2 select-none left-1/2 top-[calc(100%+0.5rem)] text-balance line-clamp-2">
+
+      <span className="absolute left-1/2 top-[calc(100%+0.5rem)] w-20 -translate-x-1/2 select-none text-center text-xs font-medium text-neutral-400 text-balance line-clamp-2 transition-colors group-hover/tile:text-neutral-200">
         {link.label}
       </span>
     </>
   );
 
-  const onMouseEnter = () => {
-    setOpen(true);
-  };
-
-  const onMouseLeave = () => {
-    setOpen(false);
-  };
+  const onMouseEnter = () => setOpen(true);
+  const onMouseLeave = () => setOpen(false);
 
   return (
     <div
-      className="relative flex flex-col items-center group"
+      className="relative flex flex-col items-center group/tile"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={() => setOpen(true)}
@@ -137,17 +128,19 @@ export default function LinkTile({ link }: Props) {
               <a
                 key={child.label}
                 href={child.href}
-                className="flex items-center px-2.5 py-2.5 rounded-lg hover:bg-neutral-700/60 active:scale-95"
+                className="group/item flex items-center rounded-lg px-2.5 py-2.5 transition active:scale-95 hover:bg-neutral-700/40"
               >
                 <Image
                   src={child.icon}
                   alt={child.label}
                   width={24}
                   height={24}
-                  className="ml-0.5 mr-3 pointer-events-none size-4"
+                  className="pointer-events-none ml-0.5 mr-3 size-4"
                   draggable={false}
                 />
-                <span className="text-sm text-neutral-300">{child.label}</span>
+                <span className="text-sm transition-colors text-neutral-300 group-hover/item:text-white">
+                  {child.label}
+                </span>
               </a>
             ))}
           </div>
