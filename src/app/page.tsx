@@ -3,6 +3,7 @@ import LinkTile, { LinkItem } from "@/components/tiles/LinkTile";
 import AyeZeeLogo from "@/components/AyeZeeLogo";
 import Greeting from "@/components/greeting";
 import { TimeDisplay } from "@/components/TimeDisplay";
+import WeatherBar from "@/components/WeatherBar";
 import { links } from "@/lib/links";
 
 // import NewLinkSidebar from "@/components/NewLinkSidebar";
@@ -33,6 +34,8 @@ export default async function Home() {
           <LinkTile key={link.label} link={link as LinkItem} />
         ))}
       </div>
+
+      <WeatherBar />
 
       <div className="absolute bottom-4 right-4">
         <TimeDisplay />
