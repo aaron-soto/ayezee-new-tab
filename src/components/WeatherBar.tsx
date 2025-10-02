@@ -6,8 +6,6 @@ import React from "react";
 async function WeatherBar() {
   const weather: Weather = await getCurrentWeather();
 
-  console.log("Weather data:", weather);
-
   return (
     <div>
       <div className="bg-surface/80 fixed bottom-4 left-4 flex w-fit items-center gap-3 rounded-full py-1.5 pl-1.5 pr-6 shadow-lg backdrop-blur-md transition-opacity duration-300 ease-in-out hover:opacity-100">
