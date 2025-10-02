@@ -19,7 +19,8 @@ export type LinkItem = {
 type Props = { link: LinkItem };
 
 export default function LinkTile({ link }: Props) {
-  const isList = link.type === IconType.List && (link.children?.length ?? 0) > 0;
+  const isList =
+    link.type === IconType.List && (link.children?.length ?? 0) > 0;
 
   const [open, setOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
@@ -83,7 +84,7 @@ export default function LinkTile({ link }: Props) {
       <svg
         viewBox="0 0 160 160"
         fill="currentColor"
-        className="transition-all duration-100 ease-in-out cursor-pointer select-none size-18 min-h-16 min-w-16 text-neutral-800 active:scale-95 group-hover/tile:scale-105 group-hover/tile:text-neutral-700"
+        className="size-18 text-surface group-hover/tile:text-surface-hover min-h-16 min-w-16 cursor-pointer select-none transition-all duration-100 ease-in-out active:scale-95 group-hover/tile:scale-105"
         aria-hidden="true"
       >
         <path d="M 0 80 C 0 0, 0 0, 80 0 S 160 0, 160 80, 160 160 80 160, 0 160, 0 80" />
@@ -94,13 +95,13 @@ export default function LinkTile({ link }: Props) {
         alt={link.label}
         width={32}
         height={32}
-        className="absolute -translate-x-1/2 pointer-events-none select-none left-1/2 size-9"
+        className="pointer-events-none absolute left-1/2 size-9 -translate-x-1/2 select-none"
         draggable={false}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         style={{ WebkitUserDrag: "none", WebkitTouchCallout: "none" } as any}
       />
 
-      <span className="absolute left-1/2 top-[calc(100%+0.5rem)] w-20 -translate-x-1/2 select-none text-center text-xs font-medium text-neutral-400 text-balance line-clamp-2 transition-colors group-hover/tile:text-neutral-200">
+      <span className="absolute left-1/2 top-[calc(100%+0.5rem)] line-clamp-2 w-20 -translate-x-1/2 select-none text-balance text-center text-xs font-medium text-neutral-400 transition-colors group-hover/tile:text-neutral-200">
         {link.label}
       </span>
     </>
@@ -111,7 +112,7 @@ export default function LinkTile({ link }: Props) {
 
   return (
     <div
-      className="relative flex flex-col items-center group/tile"
+      className="group/tile relative flex flex-col items-center"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={() => setOpen(true)}
@@ -121,14 +122,14 @@ export default function LinkTile({ link }: Props) {
         <div className="absolute left-0 top-[calc(100%+1rem)] hidden md:block">
           <div
             ref={menuRef}
-            className="relative z-[100] w-72 rounded-xl bg-neutral-800 p-1 shadow-lg will-change-transform"
+            className="bg-surface relative z-[100] w-72 rounded-xl p-1 shadow-lg will-change-transform"
             style={{ transform: "translate(0px, 0px)" }}
           >
             {link.children!.map((child) => (
               <a
                 key={child.label}
                 href={child.href}
-                className="group/item flex items-center rounded-lg px-2.5 py-2.5 transition active:scale-95 hover:bg-neutral-700/40"
+                className="group/item hover:bg-surface-hover flex items-center rounded-lg px-2.5 py-2.5 transition active:scale-95"
               >
                 <Image
                   src={child.icon}
@@ -138,7 +139,7 @@ export default function LinkTile({ link }: Props) {
                   className="pointer-events-none ml-0.5 mr-3 size-4"
                   draggable={false}
                 />
-                <span className="text-sm transition-colors text-neutral-300 group-hover/item:text-white">
+                <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
                   {child.label}
                 </span>
               </a>
@@ -147,7 +148,10 @@ export default function LinkTile({ link }: Props) {
         </div>
       )}
 
-      <a href={link.href} className="relative items-center hidden drop-shadow-2xl md:flex">
+      <a
+        href={link.href}
+        className="relative hidden items-center drop-shadow-2xl md:flex"
+      >
         {TileInner}
       </a>
     </div>

@@ -15,7 +15,7 @@ export function TimeDisplay() {
   if (!time) return null; // Avoid mismatch by rendering nothing at first
 
   return (
-    <span className="text-4xl md:text-7xl font-bold font-mono text-neutral-800 hover:text-neutral-300 transition-colors duration-300 ease-in-out cursor-default">
+    <span className="text-surface hover:text-surface-hover cursor-default font-mono text-4xl font-bold transition-colors duration-300 ease-in-out md:text-7xl">
       {time}
     </span>
   );
