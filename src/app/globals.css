@@ -2,13 +2,47 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #171717;
-  --foreground: #ffffff;
+  --background: #0a0a0a;
+  --surface: #171717;
+  --surface-hover: #262626;
+  --muted: #404040;
+
+  --foreground: #f9f9f9;
+  --muted-foreground: #767676;
+  --inverse-foreground: #111111;
+
+  --border: #202020;
+  --input: #1a1a1a;
+  --ring: #3b82f6;
+
+  --brand: #d97706;
+  --brand-hover: #fb9623;
+  --success: #22c55e;
+  --warning: #fbbf24;
+  --danger: #ef4444;
+  --info: #0ea5e9;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-muted: var(--muted);
+
   --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-inverse-foreground: var(--inverse-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

@@ -120,13 +120,18 @@ export const links: Link[] = [
     children: [
       {
         href: "http://localhost:3000",
-        label: "NextJS",
+        label: "NextJS (Local)",
         icon: "/images/logos/nextjs.svg",
       },
       {
         href: "http://localhost:4321",
-        label: "Astro",
+        label: "Astro (Local)",
         icon: "/images/logos/astro.svg",
+      },
+      {
+        href: "https://local.drizzle.studio/",
+        label: "Drizzle Studio",
+        icon: "/images/logos/drizzle.svg",
       },
     ],
   },
