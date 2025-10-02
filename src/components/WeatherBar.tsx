@@ -1,10 +1,32 @@
+"use client";
+
+import React, { useEffect } from "react";
 import { Weather, getCurrentWeather } from "@/lib/weather";
 
 import Image from "next/image";
-import React from "react";
 
-async function WeatherBar() {
-  const weather: Weather = await getCurrentWeather();
+function WeatherBar() {
+  // const weather: Weather = await getCurrentWeather();
+  const [weather, setWeather] = React.useState<Weather | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchWeather = async () => {
+      const weather: Weather = await getCurrentWeather();
+      if (isMounted) {
+        setWeather(weather);
+      }
+    };
+
+    fetchWeather();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (!weather) return null;
 
   return (
     <div>

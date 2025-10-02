@@ -1,3 +1,5 @@
+"use server";
+
 export type Weather = {
   current: {
     condition: {
