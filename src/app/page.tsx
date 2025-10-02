@@ -3,7 +3,6 @@ import LinkTile, { LinkItem } from "@/components/tiles/LinkTile";
 import AyeZeeLogo from "@/components/AyeZeeLogo";
 import Greeting from "@/components/greeting";
 import { TimeDisplay } from "@/components/TimeDisplay";
-import WeatherBar from "@/components/WeatherBar";
 import { links } from "@/lib/links";
 
 // import NewLinkSidebar from "@/components/NewLinkSidebar";
