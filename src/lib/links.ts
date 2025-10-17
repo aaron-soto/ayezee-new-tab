@@ -235,4 +235,9 @@ export const links: Link[] = [
     label: "VA",
     icon: "/images/logos/VA.svg",
   },
+  {
+    href: "https://app.relayfi.com/business/ayezee-web-designs/home",
+    label: "Relay",
+    icon: "/images/logos/relay.svg",
+  },
 ];
