@@ -2,7 +2,9 @@
 
 import { MenuPosition, calculateMenuPosition } from "@/lib/menuPositioning";
 
+import AddChildLinkModal from "@/components/AddChildLinkModal";
 import AnimatedBorder from "@/components/AnimatedBorder";
+import EditLinkModal from "@/components/EditLinkModal";
 import IconContextMenu from "@/components/IconContextMenu";
 import Image from "next/image";
 import React from "react";
@@ -16,6 +18,7 @@ export enum IconType {
 }
 
 export type LinkItem = {
+  id?: string;
   href?: string;
   label: string;
   icon: string;
@@ -44,6 +47,9 @@ export default function LinkTile({ link }: Props) {
     left: 0,
     transform: "none",
   });
+  const [isPositioned, setIsPositioned] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [isAddChildModalOpen, setIsAddChildModalOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
   const tileRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -79,10 +85,14 @@ export default function LinkTile({ link }: Props) {
     );
 
     setMenuPosition(calculatedPosition);
+    setIsPositioned(true);
   }, []);
 
   React.useEffect(() => {
-    if (!open) return;
+    if (!isHoverMenuOpen) {
+      setIsPositioned(false);
+      return;
+    }
 
     let raf1 = 0;
     let raf2 = 0;
@@ -113,8 +123,11 @@ export default function LinkTile({ link }: Props) {
   }, [isHoverMenuOpen, positionMenu]);
 
   const handleAddChild = () => {
-    // TODO: Implement add child functionality
-    console.log("Add child link to:", link.label);
+    setIsAddChildModalOpen(true);
+  };
+
+  const handleEdit = () => {
+    setIsEditModalOpen(true);
   };
 
   const TileInner = (
@@ -176,6 +189,8 @@ export default function LinkTile({ link }: Props) {
               top: menuPosition.top,
               left: menuPosition.left,
               transform: menuPosition.transform,
+              opacity: isPositioned ? 1 : 0,
+              transition: "opacity 0.15s",
             }}
           >
             {link.children!.map((child) => (
@@ -206,14 +221,34 @@ export default function LinkTile({ link }: Props) {
         onClose={() => {
           closeAllMenus();
         }}
+        onEdit={handleEdit}
         onAddChild={handleAddChild}
         position={{ x: 0, y: 16 }}
         triggerRef={tileRef}
       />
 
+      <EditLinkModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        linkId={link.id || ""}
+        currentLabel={link.label}
+        currentUrl={link.href || ""}
+        currentIcon={link.icon}
+      />
+
+      <AddChildLinkModal
+        isOpen={isAddChildModalOpen}
+        onClose={() => setIsAddChildModalOpen(false)}
+        parentId={link.id || ""}
+        parentLabel={link.label}
+      />
+
       <a
         href={link.href}
-        className="relative flex items-center drop-shadow-2xl"
+        className="duration-1800 relative flex items-center drop-shadow-2xl transition-transform ease-out"
+        style={{
+          transform: isAnimating ? "scale(0.92)" : "scale(1)",
+        }}
         {...longPress.handlers}
         onClick={(e) => {
           if (isContextMenuOpen) {

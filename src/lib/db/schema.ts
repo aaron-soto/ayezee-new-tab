@@ -11,31 +11,33 @@ import {
 
 export const roleEnum = pgEnum("role", ["admin", "user"]);
 
-export const users = pgTable("users", {
+// NextAuth tables - must use singular "user" not "users"
+export const users = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  password: text("password").notNull(),
+  name: text("name"),
+  email: text("email").notNull().unique(),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  image: text("image"),
 
-  role: roleEnum("role").notNull().default("user"),
+  // Custom fields for your app
+  password: text("password"),
+  role: roleEnum("role").default("user"),
   profileImageUrl: text("profile_image_url"),
   profileImagePublicId: text("profile_image_public_id"),
-
   resetToken: varchar("reset_token", { length: 255 }),
   resetTokenExpiry: timestamp("reset_token_expiry", {
     withTimezone: true,
     mode: "string",
   }),
-
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
-
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const account = pgTable("account", {
   id: serial("id").primaryKey(),
-  userId: uuid("userId").references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("userId")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   type: text("type").notNull(),
   provider: text("provider").notNull(),
   providerAccountId: text("providerAccountId").notNull(),
@@ -51,14 +53,47 @@ export const account = pgTable("account", {
 export const session = pgTable("session", {
   id: serial("id").primaryKey(),
   sessionToken: text("sessionToken").notNull().unique(),
-  userId: uuid("userId").references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("userId")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
 export const verificationToken = pgTable("verificationToken", {
   identifier: text("identifier").notNull(),
-  token: text("token").notNull(),
+  token: text("token").notNull().unique(),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
+// Links tables
+export const iconTypeEnum = pgEnum("icon_type", ["icon", "list"]);
+
+export const links = pgTable("links", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  href: text("href"),
+  label: varchar("label", { length: 255 }).notNull(),
+  icon: text("icon").notNull(),
+  cloudinaryPublicId: text("cloudinary_public_id"),
+  type: iconTypeEnum("type").default("icon"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const linkChildren = pgTable("link_children", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  parentId: uuid("parent_id")
+    .references(() => links.id, { onDelete: "cascade" })
+    .notNull(),
+  href: text("href").notNull(),
+  label: varchar("label", { length: 255 }).notNull(),
+  icon: text("icon").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
+export type Link = typeof links.$inferSelect;
+export type LinkChild = typeof linkChildren.$inferSelect;

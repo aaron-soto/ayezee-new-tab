@@ -43,7 +43,8 @@ if (!globalThis.__pgClient) globalThis.__pgClient = client;
 /**
  * 3) Drizzle instance, also singleton
  */
-export const db: PostgresJsDatabase<typeof schema> = globalThis.__db ?? drizzle(client, { schema });
+export const db: PostgresJsDatabase<typeof schema> =
+  globalThis.__db ?? drizzle(client, { schema });
 if (!globalThis.__db) globalThis.__db = db;
 
 /**

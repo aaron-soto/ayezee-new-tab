@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 interface ContextMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: () => void;
   onAddChild?: () => void;
   position?: { x: number; y: number };
   triggerRef?: React.RefObject<HTMLElement | null>;
@@ -17,6 +18,7 @@ interface ContextMenuProps {
 export default function IconContextMenu({
   isOpen,
   onClose,
+  onEdit,
   onAddChild,
   position,
   triggerRef,
@@ -28,13 +30,19 @@ export default function IconContextMenu({
     left: 0,
     transform: "none",
   });
+  const [isPositioned, setIsPositioned] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!isOpen || !triggerRef?.current || !menuRef.current) return;
+    if (!isOpen) {
+      setIsPositioned(false);
+      return;
+    }
+
+    if (!triggerRef?.current || !menuRef.current) return;
 
     const triggerRect = triggerRef.current.getBoundingClientRect();
     const menuRect = menuRef.current.getBoundingClientRect();
@@ -47,6 +55,7 @@ export default function IconContextMenu({
     );
 
     setMenuPosition(calculatedPosition);
+    setIsPositioned(true);
   }, [isOpen, position, triggerRef]);
 
   useEffect(() => {
@@ -81,7 +90,7 @@ export default function IconContextMenu({
         <motion.div
           ref={menuRef}
           initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: isPositioned ? 1 : 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.15 }}
           className="bg-surface fixed z-[9999] w-48 rounded-xl p-1 shadow-lg"
@@ -91,6 +100,32 @@ export default function IconContextMenu({
             transform: menuPosition.transform,
           }}
         >
+          {onEdit && (
+            <button
+              onClick={() => {
+                onEdit();
+                onClose();
+              }}
+              className="group/item hover:bg-surface-hover flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
+            >
+              <svg
+                className="ml-0.5 mr-3 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
+                Edit Link
+              </span>
+            </button>
+          )}
           {onAddChild && (
             <button
               onClick={() => {

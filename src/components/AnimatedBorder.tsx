@@ -15,15 +15,15 @@ export default function AnimatedBorder({
 
   return (
     <motion.div // size-[75px]
-      className="pointer-events-none absolute left-1/2 top-1/2 z-[-2] size-[73px] min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 rounded-xl"
+      className="pointer-events-none absolute left-1/2 top-1/2 z-[-2] size-[75px] min-h-16 min-w-16 -translate-x-1/2 -translate-y-1/2 rounded-[13px]"
       initial={{
         background:
-          "conic-gradient(from 0deg at 50% 50%, rgb(59, 130, 246) 0deg, transparent 0deg)",
+          "conic-gradient(from 0deg at 50% 50%, #003F5C 0deg, transparent 0deg)",
       }}
       animate={{
         background: [
-          "conic-gradient(from 0deg at 50% 50%, rgb(59, 130, 246) 0deg, transparent 0deg)",
-          "conic-gradient(from 0deg at 50% 50%, rgb(59, 130, 246) 360deg, transparent 360deg)",
+          "conic-gradient(from 0deg at 50% 50%, #003F5C 0deg, transparent 0deg)",
+          "conic-gradient(from 0deg at 50% 50%, #003F5C 360deg, transparent 360deg)",
         ],
       }}
       transition={{
