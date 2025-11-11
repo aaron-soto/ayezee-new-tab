@@ -1,7 +1,14 @@
 "use client";
 
+import { MenuPosition, calculateMenuPosition } from "@/lib/menuPositioning";
+
+import AnimatedBorder from "@/components/AnimatedBorder";
+import IconContextMenu from "@/components/IconContextMenu";
 import Image from "next/image";
 import React from "react";
+import { createPortal } from "react-dom";
+import { useLongPress } from "@/hooks/useLongPress";
+import { useMenuStore } from "@/lib/stores/menuStore";
 
 export enum IconType {
   Icon,
@@ -16,36 +23,62 @@ export type LinkItem = {
   children?: LinkItem[];
 };
 
-type Props = { link: LinkItem };
+type Props = {
+  link: LinkItem;
+};
 
 export default function LinkTile({ link }: Props) {
   const isList =
     link.type === IconType.List && (link.children?.length ?? 0) > 0;
 
-  const [open, setOpen] = React.useState(false);
+  // Generate a unique ID for this tile
+  const tileId = React.useId();
+
+  // Use centralized menu state
+  const { openMenuId, openMenuType, setOpenMenu, closeAllMenus } =
+    useMenuStore();
+
+  const [isAnimating, setIsAnimating] = React.useState(false);
+  const [menuPosition, setMenuPosition] = React.useState<MenuPosition>({
+    top: 0,
+    left: 0,
+    transform: "none",
+  });
   const menuRef = React.useRef<HTMLDivElement | null>(null);
+  const tileRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Check if this tile's menus are open
+  const isHoverMenuOpen = openMenuId === tileId && openMenuType === "hover";
+  const isContextMenuOpen = openMenuId === tileId && openMenuType === "context";
+
+  const longPress = useLongPress({
+    onLongPress: () => {
+      setIsAnimating(false);
+      setOpenMenu(tileId, "context");
+    },
+    onStart: () => {
+      setIsAnimating(true);
+    },
+    onCancel: () => {
+      setIsAnimating(false);
+    },
+    threshold: 800,
+  });
 
   const positionMenu = React.useCallback(() => {
-    const el = menuRef.current;
-    if (!el) return;
+    if (!menuRef.current || !tileRef.current) return;
 
-    el.style.transform = "translate(0px, 0px)";
-    const rect = el.getBoundingClientRect();
-    const margin = 16;
+    const triggerRect = tileRef.current.getBoundingClientRect();
+    const menuRect = menuRef.current.getBoundingClientRect();
 
-    const overflowLeft = margin - rect.left;
-    const overflowRight = rect.right - (window.innerWidth - margin);
-    let deltaX = 0;
-    if (overflowLeft > 0) deltaX = overflowLeft;
-    else if (overflowRight > 0) deltaX = -overflowRight;
+    const calculatedPosition = calculateMenuPosition(
+      triggerRect,
+      288, // w-72 = 18rem = 288px
+      menuRect.height || 200,
+      16, // offset below trigger
+    );
 
-    const overflowTop = margin - rect.top;
-    const overflowBottom = rect.bottom - (window.innerHeight - margin);
-    let deltaY = 0;
-    if (overflowTop > 0) deltaY = overflowTop;
-    else if (overflowBottom > 0) deltaY = -overflowBottom;
-
-    el.style.transform = `translate(${Math.round(deltaX)}px, ${Math.round(deltaY)}px)`;
+    setMenuPosition(calculatedPosition);
   }, []);
 
   React.useEffect(() => {
@@ -77,18 +110,18 @@ export default function LinkTile({ link }: Props) {
       window.removeEventListener("scroll", handleScroll);
       if (el && ro) ro.disconnect();
     };
-  }, [open, positionMenu]);
+  }, [isHoverMenuOpen, positionMenu]);
+
+  const handleAddChild = () => {
+    // TODO: Implement add child functionality
+    console.log("Add child link to:", link.label);
+  };
 
   const TileInner = (
     <>
-      <svg
-        viewBox="0 0 160 160"
-        fill="currentColor"
-        className="size-18 text-surface group-hover/tile:text-surface-hover min-h-16 min-w-16 cursor-pointer select-none transition-all duration-100 ease-in-out active:scale-95 group-hover/tile:scale-105"
-        aria-hidden="true"
-      >
-        <path d="M 0 80 C 0 0, 0 0, 80 0 S 160 0, 160 80, 160 160 80 160, 0 160, 0 80" />
-      </svg>
+      <AnimatedBorder isAnimating={isAnimating} duration={0.8} />
+
+      <div className="size-18 z-[-1] min-h-16 min-w-16 rounded-xl bg-[#1e1e1e]"></div>
 
       <Image
         src={link.icon}
@@ -107,23 +140,43 @@ export default function LinkTile({ link }: Props) {
     </>
   );
 
-  const onMouseEnter = () => setOpen(true);
-  const onMouseLeave = () => setOpen(false);
+  const onMouseEnter = () => {
+    if (!isContextMenuOpen && isList) {
+      setOpenMenu(tileId, "hover");
+    }
+  };
+
+  const onMouseLeave = () => {
+    if (!isContextMenuOpen && openMenuType === "hover") {
+      closeAllMenus();
+    }
+  };
 
   return (
     <div
+      ref={tileRef}
       className="group/tile relative flex flex-col items-center"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onFocus={() => setOpen(true)}
-      onBlur={() => setOpen(false)}
+      onFocus={() =>
+        !isContextMenuOpen && isList && setOpenMenu(tileId, "hover")
+      }
+      onBlur={() =>
+        !isContextMenuOpen && openMenuType === "hover" && closeAllMenus()
+      }
     >
-      {isList && open && (
-        <div className="absolute left-0 top-[calc(100%+1rem)] hidden md:block">
+      {isList &&
+        isHoverMenuOpen &&
+        !isContextMenuOpen &&
+        createPortal(
           <div
             ref={menuRef}
-            className="bg-surface relative z-[100] w-72 rounded-xl p-1 shadow-lg will-change-transform"
-            style={{ transform: "translate(0px, 0px)" }}
+            className="bg-surface fixed z-[9999] w-72 rounded-xl p-1 shadow-lg"
+            style={{
+              top: menuPosition.top,
+              left: menuPosition.left,
+              transform: menuPosition.transform,
+            }}
           >
             {link.children!.map((child) => (
               <a
@@ -144,13 +197,29 @@ export default function LinkTile({ link }: Props) {
                 </span>
               </a>
             ))}
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
+
+      <IconContextMenu
+        isOpen={isContextMenuOpen}
+        onClose={() => {
+          closeAllMenus();
+        }}
+        onAddChild={handleAddChild}
+        position={{ x: 0, y: 16 }}
+        triggerRef={tileRef}
+      />
 
       <a
         href={link.href}
-        className="relative hidden items-center drop-shadow-2xl md:flex"
+        className="relative flex items-center drop-shadow-2xl"
+        {...longPress.handlers}
+        onClick={(e) => {
+          if (isContextMenuOpen) {
+            e.preventDefault();
+          }
+        }}
       >
         {TileInner}
       </a>

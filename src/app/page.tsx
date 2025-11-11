@@ -1,6 +1,5 @@
-import LinkTile, { LinkItem } from "@/components/tiles/LinkTile";
-
 import AyeZeeLogo from "@/components/AyeZeeLogo";
+import DraggableGrid from "@/components/DraggableGrid";
 import Greeting from "@/components/greeting";
 import { TimeDisplay } from "@/components/TimeDisplay";
 import { links } from "@/lib/links";
@@ -10,7 +9,7 @@ import { links } from "@/lib/links";
 export default async function Home() {
   return (
     <div className="p-4">
-      <div className="flex items-center justify-start w-full mb-8">
+      <div className="mb-8 flex w-full items-center justify-start">
         <AyeZeeLogo className="mr-8 h-auto w-[200px]" />
 
         <div className="flex items-center gap-4">
@@ -20,7 +19,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <Greeting />
 
         <div className="flex items-center gap-4">
@@ -28,11 +27,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-start w-full gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-12">
-        {links.map((link) => (
-          <LinkTile key={link.label} link={link as LinkItem} />
-        ))}
-      </div>
+      <DraggableGrid links={links} />
 
       <div className="absolute bottom-4 right-4">
         <TimeDisplay />
