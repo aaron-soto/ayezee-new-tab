@@ -12,7 +12,7 @@ function Greeting({ name }: GreetingProps) {
 
   return (
     <h2 className="text-2xl font-bold">
-      {getTimeBasedGreeting()}, {firstName}
+      {getTimeBasedGreeting()}, {firstName}!
     </h2>
   );
 }
