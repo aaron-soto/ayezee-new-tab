@@ -101,7 +101,7 @@ export default function SettingsForm({ user }: SettingsFormProps) {
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+          className="input"
           placeholder="Enter your name"
         />
       </div>
@@ -119,7 +119,7 @@ export default function SettingsForm({ user }: SettingsFormProps) {
           id="imageUrl"
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
-          className="bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+          className="input"
           placeholder="https://example.com/image.jpg"
         />
         <p className="mt-1 text-xs text-neutral-500">
@@ -141,11 +141,7 @@ export default function SettingsForm({ user }: SettingsFormProps) {
       )}
 
       {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full rounded-lg bg-white px-4 py-3 font-medium text-black transition-all hover:bg-neutral-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-      >
+      <button type="submit" disabled={isLoading} className="button w-full">
         {isLoading ? "Saving..." : "Save Changes"}
       </button>
     </form>

@@ -157,7 +157,7 @@ export default function AddChildLinkModal({
                     id="label"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
-                    className="bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                    className="input"
                     placeholder="Enter link label"
                     required
                     autoFocus
@@ -177,7 +177,7 @@ export default function AddChildLinkModal({
                     id="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className="bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                    className="input"
                     placeholder="https://example.com"
                     required
                   />

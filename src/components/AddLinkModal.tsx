@@ -144,7 +144,7 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                     id="label"
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
-                    className="bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                    className="input"
                     placeholder="Enter link label"
                     required
                     autoFocus
@@ -164,7 +164,7 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                     id="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className="bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600"
+                    className="input"
                     placeholder="https://example.com"
                     required
                   />
@@ -247,11 +247,15 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                     type="button"
                     onClick={handleClose}
                     disabled={isLoading}
-                    className="button surface"
+                    className="button surface flex-1"
                   >
                     Cancel
                   </button>
-                  <button type="submit" disabled={isLoading} className="button">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="button flex-1"
+                  >
                     {isLoading ? "Creating..." : "Create Link"}
                   </button>
                 </div>
