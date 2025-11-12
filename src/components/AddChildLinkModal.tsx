@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRef, useState } from "react";
+
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 interface AddChildLinkModalProps {
   isOpen: boolean;
@@ -118,12 +119,14 @@ export default function AddChildLinkModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleClose}
             className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm"
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
+            onClick={handleClose}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -204,7 +207,7 @@ export default function AddChildLinkModal({
                               fileInputRef.current.value = "";
                             }
                           }}
-                          className="text-sm text-neutral-400 hover:text-white"
+                          className="button surface"
                         >
                           Remove
                         </button>
@@ -213,7 +216,7 @@ export default function AddChildLinkModal({
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="hover:bg-surface-hover flex items-center gap-2 rounded-lg border border-neutral-700 px-4 py-3 text-neutral-300 transition-colors"
+                        className="button surface"
                       >
                         <svg
                           className="h-5 w-5"
@@ -257,14 +260,14 @@ export default function AddChildLinkModal({
                     type="button"
                     onClick={handleClose}
                     disabled={isLoading}
-                    className="hover:bg-surface-hover flex-1 rounded-lg border border-neutral-700 px-4 py-3 font-medium text-neutral-300 transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="button surface flex-1"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 rounded-lg bg-white px-4 py-3 font-medium text-black transition-all hover:bg-neutral-200 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="button flex-1"
                   >
                     {isLoading ? "Creating..." : "Create Child Link"}
                   </button>

@@ -110,12 +110,14 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleClose}
             className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm"
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
+            onClick={handleClose}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -201,10 +203,10 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="hover:bg-surface-hover flex cursor-pointer items-center gap-2 rounded-lg border border-neutral-700 px-4 py-3 text-neutral-300 transition-colors"
+                        className="button surface"
                       >
                         <svg
-                          className="h-5 w-5"
+                          className="icon"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -245,15 +247,11 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                     type="button"
                     onClick={handleClose}
                     disabled={isLoading}
-                    className="hover:bg-surface-hover flex-1 cursor-pointer rounded-lg border border-neutral-700 px-4 py-3 font-medium text-neutral-300 transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="button surface"
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex-1 cursor-pointer rounded-lg bg-white px-4 py-3 font-medium text-black transition-all hover:bg-white/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
+                  <button type="submit" disabled={isLoading} className="button">
                     {isLoading ? "Creating..." : "Create Link"}
                   </button>
                 </div>

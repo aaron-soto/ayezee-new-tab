@@ -63,3 +63,15 @@ body {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+.button {
+  @apply cursor-pointer justify-center rounded-lg bg-white px-6 py-2.5 font-medium text-black transition-all hover:bg-white/80 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.button.surface {
+  @apply bg-surface hover:bg-surface-hover flex items-center gap-2 rounded-lg border border-neutral-700 text-neutral-300 transition-colors;
+}
+
+.button > .icon {
+  @apply h-5 w-5;
+}
