@@ -95,7 +95,7 @@ export default function UserMenu() {
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.15 }}
           className={cn(
-            "bg-surface fixed z-[9999] rounded-xl p-1 shadow-lg",
+            "bg-surface/50 fixed z-[9999] rounded-xl p-1 shadow-lg backdrop-blur-2xl",
             `w-[220px]`,
           )}
           style={{

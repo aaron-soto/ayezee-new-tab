@@ -7,6 +7,7 @@ import UserMenu from "@/components/UserMenu";
 import { getLinksFromDb } from "@/lib/linksDb";
 import { getServerSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import AnimatedGradientBackground from "@/components/AnimatedGradientBackground";
 
 export default async function Home() {
   const session = await getServerSession();
@@ -19,7 +20,9 @@ export default async function Home() {
   const links = await getLinksFromDb(session.user.id);
 
   return (
-    <div className="p-4">
+    <div className="px-8 py-6">
+      <AnimatedGradientBackground />
+
       <div className="mb-8 flex w-full items-center justify-between">
         <AyeZeeLogo className="mr-8 h-auto w-[200px]" />
 

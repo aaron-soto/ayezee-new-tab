@@ -3,7 +3,7 @@
 
 :root {
   --background: #0a0a0a;
-  --surface: #171717;
+  --surface: #131313;
   --surface-hover: #262626;
   --muted: #404040;
 
@@ -62,6 +62,24 @@ body {
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+/* Jiggle animation for editing mode */
+@keyframes jiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: -1deg;
+  }
+  75% {
+    rotate: 1deg;
+  }
+}
+
+.jiggle {
+  animation: jiggle 0.3s ease-in-out infinite;
 }
 
 .button {

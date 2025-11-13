@@ -11,6 +11,7 @@ interface ContextMenuProps {
   onClose: () => void;
   onEdit?: () => void;
   onAddChild?: () => void;
+  onEditOrder?: () => void;
   position?: { x: number; y: number };
   triggerRef?: React.RefObject<HTMLElement | null>;
 }
@@ -20,6 +21,7 @@ export default function IconContextMenu({
   onClose,
   onEdit,
   onAddChild,
+  onEditOrder,
   position,
   triggerRef,
 }: ContextMenuProps) {
@@ -149,6 +151,32 @@ export default function IconContextMenu({
               </svg>
               <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
                 Add Child Link
+              </span>
+            </button>
+          )}
+          {onEditOrder && (
+            <button
+              onClick={() => {
+                onEditOrder();
+                onClose();
+              }}
+              className="group/item hover:bg-surface-hover flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
+            >
+              <svg
+                className="ml-0.5 mr-3 h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
+                Edit Order
               </span>
             </button>
           )}

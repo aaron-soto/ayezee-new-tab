@@ -11,6 +11,8 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useMenuStore } from "@/lib/stores/menuStore";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export enum IconType {
   Icon,
@@ -28,18 +30,44 @@ export type LinkItem = {
 
 type Props = {
   link: LinkItem;
+  draggable?: boolean;
 };
 
-export default function LinkTile({ link }: Props) {
+export default function LinkTile({ link, draggable = false }: Props) {
   const isList =
     link.type === IconType.List && (link.children?.length ?? 0) > 0;
 
   // Generate a unique ID for this tile
   const tileId = React.useId();
 
+  // dnd-kit sortable hook
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: link.id || link.label,
+    disabled: !draggable,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   // Use centralized menu state
-  const { openMenuId, openMenuType, setOpenMenu, closeAllMenus } =
-    useMenuStore();
+  const {
+    openMenuId,
+    openMenuType,
+    isEditing,
+    setOpenMenu,
+    closeAllMenus,
+    startEditing,
+  } = useMenuStore();
 
   const [isAnimating, setIsAnimating] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState<MenuPosition>({
@@ -59,11 +87,15 @@ export default function LinkTile({ link }: Props) {
 
   const longPress = useLongPress({
     onLongPress: () => {
-      setIsAnimating(false);
-      setOpenMenu(tileId, "context");
+      if (!isEditing) {
+        setIsAnimating(false);
+        setOpenMenu(tileId, "context");
+      }
     },
     onStart: () => {
-      setIsAnimating(true);
+      if (!isEditing) {
+        setIsAnimating(true);
+      }
     },
     onCancel: () => {
       setIsAnimating(false);
@@ -134,7 +166,26 @@ export default function LinkTile({ link }: Props) {
     <>
       <AnimatedBorder isAnimating={isAnimating} duration={0.8} />
 
-      <div className="size-18 z-[-1] min-h-16 min-w-16 rounded-xl bg-[#1e1e1e]"></div>
+      <div className="size-18 bg-surface/50 z-[-1] min-h-16 min-w-16 rounded-xl backdrop-blur-2xl"></div>
+
+      {/* Drag handle indicator when in edit mode */}
+      {draggable && (
+        <div className="absolute -right-1 -top-1 z-10 rounded-full bg-neutral-700 p-1">
+          <svg
+            className="h-3 w-3 text-neutral-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 8h16M4 16h16"
+            />
+          </svg>
+        </div>
+      )}
 
       <Image
         src={link.icon}
@@ -154,28 +205,39 @@ export default function LinkTile({ link }: Props) {
   );
 
   const onMouseEnter = () => {
-    if (!isContextMenuOpen && isList) {
+    if (!isContextMenuOpen && isList && !isEditing) {
       setOpenMenu(tileId, "hover");
     }
   };
 
   const onMouseLeave = () => {
-    if (!isContextMenuOpen && openMenuType === "hover") {
+    if (!isContextMenuOpen && openMenuType === "hover" && !isEditing) {
       closeAllMenus();
     }
   };
 
   return (
     <div
-      ref={tileRef}
-      className="group/tile relative flex select-none flex-col items-center"
+      ref={(node) => {
+        setNodeRef(node);
+        tileRef.current = node;
+      }}
+      className={`group/tile relative flex select-none flex-col items-center ${draggable ? "jiggle cursor-move" : ""}`}
+      style={style}
+      {...(draggable ? { ...attributes, ...listeners } : {})}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={() =>
-        !isContextMenuOpen && isList && setOpenMenu(tileId, "hover")
+        !isContextMenuOpen &&
+        isList &&
+        !isEditing &&
+        setOpenMenu(tileId, "hover")
       }
       onBlur={() =>
-        !isContextMenuOpen && openMenuType === "hover" && closeAllMenus()
+        !isContextMenuOpen &&
+        openMenuType === "hover" &&
+        !isEditing &&
+        closeAllMenus()
       }
     >
       {isList &&
@@ -223,6 +285,7 @@ export default function LinkTile({ link }: Props) {
         }}
         onEdit={handleEdit}
         onAddChild={handleAddChild}
+        onEditOrder={startEditing}
         position={{ x: 0, y: 16 }}
         triggerRef={tileRef}
       />
@@ -269,7 +332,7 @@ export default function LinkTile({ link }: Props) {
           onClick={(e) => {
             e.preventDefault();
             // For folder icons without href, open context menu or hover menu
-            if (isList && !isContextMenuOpen) {
+            if (isList && !isContextMenuOpen && !isEditing) {
               setOpenMenu(tileId, "hover");
             }
           }}
