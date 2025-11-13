@@ -167,7 +167,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
     <>
       <AnimatedBorder isAnimating={isAnimating} duration={0.8} />
 
-      <div className="size-18 bg-foreground/5 z-[-1] min-h-16 min-w-16 rounded-xl backdrop-blur-2xl"></div>
+      <div className="size-18 bg-foreground/5 hover:bg-foreground/10 z-[-1] min-h-16 min-w-16 rounded-xl backdrop-blur-2xl"></div>
 
       {/* Drag handle indicator when in edit mode */}
       {draggable && (
