@@ -168,7 +168,7 @@ export default function LinkTile({ link }: Props) {
   return (
     <div
       ref={tileRef}
-      className="group/tile relative flex flex-col items-center"
+      className="group/tile relative flex select-none flex-col items-center"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={() =>
