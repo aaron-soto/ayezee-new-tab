@@ -10,7 +10,7 @@ export default function AddLinkButton() {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="bg-surface text-muted-foreground hover:text-foreground hover:bg-surface-hover flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 font-medium transition-all active:scale-95"
+        className="bg-foreground/5 text-muted-foreground hover:text-foreground hover:bg-foreground/10 flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 font-medium backdrop-blur-2xl transition-all active:scale-95"
       >
         <svg
           className="h-5 w-5"

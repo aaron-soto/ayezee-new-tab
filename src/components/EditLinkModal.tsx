@@ -127,7 +127,7 @@ export default function EditLinkModal({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="bg-surface/50 w-full max-w-md rounded-xl p-6 shadow-2xl backdrop-blur-2xl"
+              className="bg-foreground/5 w-full max-w-md rounded-xl p-6 shadow-2xl backdrop-blur-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="mb-6 text-xl font-bold text-white">Edit Link</h2>

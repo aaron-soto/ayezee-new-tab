@@ -95,7 +95,7 @@ export default function IconContextMenu({
           animate={{ opacity: isPositioned ? 1 : 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.15 }}
-          className="bg-surface fixed z-[9999] w-48 rounded-xl p-1 shadow-lg"
+          className="bg-foreground/5 fixed z-[9999] w-48 rounded-xl p-1 shadow-lg backdrop-blur-2xl"
           style={{
             top: menuPosition.top,
             left: menuPosition.left,
@@ -108,7 +108,7 @@ export default function IconContextMenu({
                 onEdit();
                 onClose();
               }}
-              className="group/item hover:bg-surface-hover flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
+              className="group/item hover:bg-foreground/10 flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
             >
               <svg
                 className="ml-0.5 mr-3 h-4 w-4"
@@ -134,7 +134,7 @@ export default function IconContextMenu({
                 onAddChild();
                 onClose();
               }}
-              className="group/item hover:bg-surface-hover flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
+              className="group/item hover:bg-foreground/10 flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
             >
               <svg
                 className="ml-0.5 mr-3 h-4 w-4"
@@ -160,7 +160,7 @@ export default function IconContextMenu({
                 onEditOrder();
                 onClose();
               }}
-              className="group/item hover:bg-surface-hover flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
+              className="group/item hover:bg-foreground/10 flex w-full cursor-pointer items-center rounded-lg px-2.5 py-2.5 text-left transition active:scale-95"
             >
               <svg
                 className="ml-0.5 mr-3 h-4 w-4"
