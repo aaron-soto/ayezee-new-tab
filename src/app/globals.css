@@ -65,20 +65,28 @@ body {
 }
 
 /* Jiggle animation for editing mode */
+/* Jiggle animation for editing mode */
 @keyframes jiggle {
   0%,
   100% {
-    rotate: 0deg;
+    transform: rotate(0deg);
   }
   25% {
-    rotate: -1deg;
+    transform: rotate(-1deg);
   }
   75% {
-    rotate: 1deg;
+    transform: rotate(1deg);
   }
 }
 
-.jiggle {
+/* Keep compatibility for any existing .jiggle usage and add .jiggle-inner
+   which is used on an absolutely-positioned/inner visual element so the
+   rotation does not affect layout sizing of the tile wrapper. */
+.jiggle,
+.jiggle-inner {
+  display: inline-block;
+  transform-origin: center center;
+  will-change: transform;
   animation: jiggle 0.3s ease-in-out infinite;
 }
 

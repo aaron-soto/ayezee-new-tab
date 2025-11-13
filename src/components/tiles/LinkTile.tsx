@@ -163,15 +163,23 @@ export default function LinkTile({ link, draggable = false }: Props) {
     setIsEditModalOpen(true);
   };
 
-  const TileInner = (
-    <>
+  // Visual content is wrapped in an inner element so we can animate
+  // rotation without affecting the outer wrapper's layout/size.
+  const Visual = (
+    <div
+      className={`relative flex h-full w-full items-center justify-center ${
+        draggable ? "jiggle-inner" : ""
+      }`}
+      // ensure the visual area fills the tile wrapper
+    >
       <AnimatedBorder isAnimating={isAnimating} duration={0.8} />
 
-      <div className="size-18 bg-foreground/5 hover:bg-foreground/10 z-[-1] min-h-16 min-w-16 rounded-xl backdrop-blur-2xl"></div>
+      {/* background box: use a valid hover class and keep z non-negative so it's visible */}
+      <div className="size-18 z-0 min-h-16 min-w-16 rounded-xl bg-white/5 backdrop-blur-2xl hover:bg-white/10"></div>
 
-      {/* Drag handle indicator when in edit mode */}
+      {/* Drag handle indicator when in edit mode (absolute so it doesn't affect layout) */}
       {draggable && (
-        <div className="absolute -right-1 -top-1 z-10 rounded-full bg-neutral-600 p-1">
+        <div className="pointer-events-auto absolute -right-1 -top-1 z-10 rounded-full bg-neutral-600 p-1">
           <DragHandleIcon />
         </div>
       )}
@@ -181,16 +189,13 @@ export default function LinkTile({ link, draggable = false }: Props) {
         alt={link.label}
         width={32}
         height={32}
-        className="pointer-events-none absolute left-1/2 size-9 -translate-x-1/2 select-none"
+        // explicitly center the icon both horizontally and vertically inside the visual
+        className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-1/2 -translate-y-1/2 select-none"
         draggable={false}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         style={{ WebkitUserDrag: "none", WebkitTouchCallout: "none" } as any}
       />
-
-      <span className="absolute left-1/2 top-[calc(100%+0.5rem)] line-clamp-2 w-20 -translate-x-1/2 select-none text-balance text-center text-xs font-medium text-neutral-400 transition-colors group-hover/tile:text-neutral-200">
-        {link.label}
-      </span>
-    </>
+    </div>
   );
 
   const onMouseEnter = () => {
@@ -211,7 +216,11 @@ export default function LinkTile({ link, draggable = false }: Props) {
         setNodeRef(node);
         tileRef.current = node;
       }}
-      className={`group/tile relative flex select-none flex-col items-center ${draggable ? "jiggle cursor-move" : ""}`}
+      // give the tile a fixed height so the jiggle rotation doesn't change
+      // the layout/row height when tiles are animated or dragged
+      className={`group/tile relative flex h-24 select-none flex-col items-center ${
+        draggable ? "cursor-move" : ""
+      }`}
       style={style}
       {...(draggable ? { ...attributes, ...listeners } : {})}
       onMouseEnter={onMouseEnter}
@@ -309,7 +318,11 @@ export default function LinkTile({ link, draggable = false }: Props) {
             }
           }}
         >
-          {TileInner}
+          {Visual}
+
+          <span className="absolute left-1/2 top-[calc(100%+0.5rem)] line-clamp-2 w-20 -translate-x-1/2 select-none text-balance text-center text-xs font-medium text-neutral-400 transition-colors group-hover/tile:text-neutral-200">
+            {link.label}
+          </span>
         </a>
       ) : (
         <div
@@ -326,7 +339,11 @@ export default function LinkTile({ link, draggable = false }: Props) {
             }
           }}
         >
-          {TileInner}
+          {Visual}
+
+          <span className="absolute left-1/2 top-[calc(100%+0.5rem)] line-clamp-2 w-20 -translate-x-1/2 select-none text-balance text-center text-xs font-medium text-neutral-400 transition-colors group-hover/tile:text-neutral-200">
+            {link.label}
+          </span>
         </div>
       )}
     </div>
