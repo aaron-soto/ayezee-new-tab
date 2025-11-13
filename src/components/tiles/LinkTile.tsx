@@ -13,6 +13,7 @@ import { useLongPress } from "@/hooks/useLongPress";
 import { useMenuStore } from "@/lib/stores/menuStore";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import DragHandleIcon from "@/components/icons/DragHandleIcon";
 
 export enum IconType {
   Icon,
@@ -170,20 +171,8 @@ export default function LinkTile({ link, draggable = false }: Props) {
 
       {/* Drag handle indicator when in edit mode */}
       {draggable && (
-        <div className="absolute -right-1 -top-1 z-10 rounded-full bg-neutral-700 p-1">
-          <svg
-            className="h-3 w-3 text-neutral-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 8h16M4 16h16"
-            />
-          </svg>
+        <div className="absolute -right-1 -top-1 z-10 rounded-full bg-neutral-600 p-1">
+          <DragHandleIcon />
         </div>
       )}
 
@@ -306,7 +295,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
         parentLabel={link.label}
       />
 
-      {link.href ? (
+      {link.href && !isEditing ? (
         <a
           href={link.href}
           className="duration-1800 relative flex items-center drop-shadow-2xl transition-transform ease-out"
