@@ -2,6 +2,7 @@ import "./globals.css";
 
 import { Geist, Geist_Mono } from "next/font/google";
 
+import AnimatedGradientBackground from "@/components/AnimatedGradientBackground";
 import AuthProvider from "@/components/AuthProvider";
 import type { Metadata } from "next";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-white: max-w-screen relative min-h-screen overflow-hidden antialiased`}
       >
+        <AnimatedGradientBackground />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

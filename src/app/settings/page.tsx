@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-surface mb-6 rounded-2xl p-8 shadow-xl">
+        <div className="bg-surface/50 mb-6 rounded-2xl p-8 shadow-xl backdrop-blur-2xl">
           <h1 className="mb-6 text-2xl font-bold text-white">Settings</h1>
           <SettingsForm user={session.user} />
         </div>
