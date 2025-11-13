@@ -243,21 +243,40 @@ export default function LinkTile({ link }: Props) {
         parentLabel={link.label}
       />
 
-      <a
-        href={link.href}
-        className="duration-1800 relative flex items-center drop-shadow-2xl transition-transform ease-out"
-        style={{
-          transform: isAnimating ? "scale(0.92)" : "scale(1)",
-        }}
-        {...longPress.handlers}
-        onClick={(e) => {
-          if (isContextMenuOpen) {
+      {link.href ? (
+        <a
+          href={link.href}
+          className="duration-1800 relative flex items-center drop-shadow-2xl transition-transform ease-out"
+          style={{
+            transform: isAnimating ? "scale(0.92)" : "scale(1)",
+          }}
+          {...longPress.handlers}
+          onClick={(e) => {
+            if (isContextMenuOpen) {
+              e.preventDefault();
+            }
+          }}
+        >
+          {TileInner}
+        </a>
+      ) : (
+        <div
+          className="duration-1800 relative flex cursor-pointer items-center drop-shadow-2xl transition-transform ease-out"
+          style={{
+            transform: isAnimating ? "scale(0.92)" : "scale(1)",
+          }}
+          {...longPress.handlers}
+          onClick={(e) => {
             e.preventDefault();
-          }
-        }}
-      >
-        {TileInner}
-      </a>
+            // For folder icons without href, open context menu or hover menu
+            if (isList && !isContextMenuOpen) {
+              setOpenMenu(tileId, "hover");
+            }
+          }}
+        >
+          {TileInner}
+        </div>
+      )}
     </div>
   );
 }

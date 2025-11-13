@@ -114,7 +114,10 @@ export async function PUT(request: NextRequest) {
     } = {};
 
     if (label) updateData.label = label;
-    if (href) updateData.href = href;
+    // Allow setting href to empty string (for folders/parent icons)
+    if (href !== null && href !== undefined) {
+      updateData.href = href || undefined;
+    }
     if (type) updateData.type = type === "list" ? IconType.List : IconType.Icon;
 
     // If new icon is uploaded, upload to Cloudinary and delete old one

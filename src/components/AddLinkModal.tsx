@@ -157,7 +157,7 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                     htmlFor="url"
                     className="mb-2 block text-sm font-medium text-neutral-300"
                   >
-                    URL
+                    URL <span className="text-neutral-500">(optional)</span>
                   </label>
                   <input
                     type="url"
@@ -166,8 +166,10 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
                     onChange={(e) => setUrl(e.target.value)}
                     className="input"
                     placeholder="https://example.com"
-                    required
                   />
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Leave empty for folder/parent icons
+                  </p>
                 </div>
 
                 {/* Icon Upload */}
