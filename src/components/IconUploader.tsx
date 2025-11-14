@@ -9,6 +9,7 @@ type Props = {
   setIconFile: (f: File | null) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   disabled?: boolean;
+  currentIcon?: string; // Optional: for edit mode to show the existing icon
 };
 
 export default function IconUploader({
@@ -17,6 +18,7 @@ export default function IconUploader({
   setIconFile,
   fileInputRef,
   disabled = false,
+  currentIcon,
 }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,30 +46,35 @@ export default function IconUploader({
     reader.readAsDataURL(file);
   };
 
+  const displayIcon = iconPreview || currentIcon;
+
   return (
     <div className="flex items-center gap-4">
-      {iconPreview ? (
-        <div className="flex items-center gap-3">
+      {displayIcon && (
+        <div className="bg-foreground/5 grid aspect-square place-items-center rounded-lg p-4">
           <Image
-            src={iconPreview}
-            alt="Icon preview"
-            width={48}
-            height={48}
-            className="bg-foreground/5 rounded-lg border border-neutral-700"
+            src={displayIcon}
+            alt="Icon"
+            width={32}
+            height={32}
+            className=""
           />
-          <button
-            type="button"
-            onClick={() => {
-              setIconFile(null);
-              setIconPreview(null);
-              if (fileInputRef.current) fileInputRef.current.value = "";
-            }}
-            className="button surface"
-            disabled={disabled}
-          >
-            Remove
-          </button>
         </div>
+      )}
+
+      {iconPreview ? (
+        <button
+          type="button"
+          onClick={() => {
+            setIconFile(null);
+            setIconPreview(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+          }}
+          className="button surface"
+          disabled={disabled}
+        >
+          Remove
+        </button>
       ) : (
         <button
           type="button"

@@ -1,10 +1,9 @@
 "use client";
 
+import Modal, { ModalCancel, ModalConfirm } from "@/components/Modal";
 import { useRef, useState } from "react";
 
 import IconUploader from "@/components/IconUploader";
-import Image from "next/image";
-import Modal, { ModalCancel, ModalConfirm } from "@/components/Modal";
 import { useRouter } from "next/navigation";
 
 interface EditLinkModalProps {
@@ -80,8 +79,6 @@ export default function EditLinkModal({
 
   if (!isOpen) return null;
 
-  const displayIcon = iconPreview || currentIcon;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -138,25 +135,14 @@ export default function EditLinkModal({
           <label className="mb-2 block text-sm font-medium text-neutral-300">
             Icon
           </label>
-          <div className="flex items-center gap-4">
-            <div className="bg-foreground/5 grid aspect-square place-items-center rounded-lg p-4">
-              <Image
-                src={displayIcon}
-                alt="Icon"
-                width={32}
-                height={32}
-                className=""
-              />
-            </div>
-
-            <IconUploader
-              iconPreview={iconPreview}
-              setIconPreview={setIconPreview}
-              setIconFile={setIconFile}
-              fileInputRef={fileInputRef}
-              disabled={isLoading}
-            />
-          </div>
+          <IconUploader
+            iconPreview={iconPreview}
+            setIconPreview={setIconPreview}
+            setIconFile={setIconFile}
+            fileInputRef={fileInputRef}
+            disabled={isLoading}
+            currentIcon={currentIcon}
+          />
           <p className="text-muted-foreground mt-1 text-xs">
             {iconFile
               ? "New icon will replace the current one"
