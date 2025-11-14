@@ -4,6 +4,7 @@ import DraggableGrid from "@/components/DraggableGrid";
 import Greeting from "@/components/greeting";
 import SearchBar from "@/components/SearchBar";
 import { TimeDisplay } from "@/components/TimeDisplay";
+import TipsComponent from "@/components/TipsComponent";
 import UserMenu from "@/components/UserMenu";
 import { getLinksFromDb } from "@/lib/linksDb";
 import { getServerSession } from "@/lib/auth";
@@ -21,7 +22,7 @@ export default async function Home() {
 
   return (
     <div className="px-8 py-6">
-      <div className="mb-8 flex w-full items-center justify-between">
+      <div className="flex items-center justify-between w-full mb-8">
         <AyeZeeLogo className="mr-8 h-auto w-[200px]" />
 
         <div className="flex items-center gap-4">
@@ -29,7 +30,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="mb-8 flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Greeting name={session.user.name} />
 
@@ -43,7 +44,9 @@ export default async function Home() {
 
       <DraggableGrid links={links} />
 
-      <div className="absolute bottom-4 right-4">
+      <div className="absolute flex items-end justify-between inset-x-4 bottom-4">
+        <TipsComponent />
+
         <TimeDisplay />
       </div>
     </div>
