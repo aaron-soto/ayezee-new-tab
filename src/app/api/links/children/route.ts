@@ -64,3 +64,35 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// DELETE /api/links/children - Delete a child link
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession();
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Child link ID is required" },
+        { status: 400 },
+      );
+    }
+
+    // Delete the child link
+    await db.delete(linkChildren).where(eq(linkChildren.id, id));
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting child link:", error);
+    return NextResponse.json(
+      { error: "Failed to delete child link" },
+      { status: 500 },
+    );
+  }
+}

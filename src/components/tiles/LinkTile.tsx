@@ -4,6 +4,7 @@ import { MenuPosition, calculateMenuPosition } from "@/lib/menuPositioning";
 
 import AddChildLinkModal from "@/components/AddChildLinkModal";
 import AnimatedBorder from "@/components/AnimatedBorder";
+import ChildLink from "@/components/tiles/ChildLink";
 import { CSS } from "@dnd-kit/utilities";
 import DragHandleIcon from "@/components/icons/DragHandleIcon";
 import EditLinkModal from "@/components/EditLinkModal";
@@ -14,6 +15,7 @@ import { createPortal } from "react-dom";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useMenuStore } from "@/lib/stores/menuStore";
 import { useSortable } from "@dnd-kit/sortable";
+import { useRouter } from "next/navigation";
 
 export enum IconType {
   Icon,
@@ -36,6 +38,7 @@ type Props = {
 };
 
 export default function LinkTile({ link, draggable = false }: Props) {
+  const router = useRouter();
   const isList =
     link.type === IconType.List && (link.children?.length ?? 0) > 0;
 
@@ -81,8 +84,14 @@ export default function LinkTile({ link, draggable = false }: Props) {
   const [isPositioned, setIsPositioned] = React.useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isAddChildModalOpen, setIsAddChildModalOpen] = React.useState(false);
+  const [childContextMenu, setChildContextMenu] = React.useState<{
+    childId: string;
+    childLabel: string;
+    element: HTMLAnchorElement;
+  } | null>(null);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
   const tileRef = React.useRef<HTMLDivElement | null>(null);
+  const childMenuTriggerRef = React.useRef<HTMLAnchorElement | null>(null);
   const closeTimeoutRef = React.useRef<number | null>(null);
 
   // Check if this tile's menus are open
@@ -183,6 +192,47 @@ export default function LinkTile({ link, draggable = false }: Props) {
     setIsEditModalOpen(true);
   };
 
+  const handleDelete = async () => {
+    if (!link.id) return;
+
+    if (confirm(`Are you sure you want to delete "${link.label}"?`)) {
+      try {
+        const response = await fetch(`/api/links?id=${link.id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          router.refresh();
+        } else {
+          alert("Failed to delete link");
+        }
+      } catch (error) {
+        console.error("Error deleting link:", error);
+        alert("Failed to delete link");
+      }
+    }
+  };
+
+  const handleDeleteChild = async (childId: string, childLabel: string) => {
+    if (confirm(`Are you sure you want to delete "${childLabel}"?`)) {
+      try {
+        const response = await fetch(`/api/links/children?id=${childId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          router.refresh();
+        } else {
+          alert("Failed to delete child link");
+        }
+      } catch (error) {
+        console.error("Error deleting child link:", error);
+        alert("Failed to delete child link");
+      }
+    }
+    setChildContextMenu(null);
+  };
+
   // Visual content is wrapped in an inner element so we can animate
   // rotation without affecting the outer wrapper's layout/size.
   const Visual = (
@@ -233,6 +283,9 @@ export default function LinkTile({ link, draggable = false }: Props) {
   };
 
   const onMouseLeave = () => {
+    // Don't close hover menu if child context menu is open
+    if (childContextMenu) return;
+
     // Start a short timeout before closing so mouse movement to the portal menu
     // doesn't immediately close it when the cursor briefly leaves the tile.
     if (!isContextMenuOpen && openMenuType === "hover" && !isEditing) {
@@ -276,7 +329,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
       }
     >
       {isList &&
-        isHoverMenuOpen &&
+        (isHoverMenuOpen || childContextMenu) &&
         !isContextMenuOpen &&
         createPortal(
           <div
@@ -297,6 +350,9 @@ export default function LinkTile({ link, draggable = false }: Props) {
               }
             }}
             onMouseLeave={() => {
+              // Don't close hover menu if child context menu is open
+              if (childContextMenu) return;
+
               // start the same short timeout when leaving the menu
               if (closeTimeoutRef.current)
                 clearTimeout(closeTimeoutRef.current);
@@ -310,23 +366,17 @@ export default function LinkTile({ link, draggable = false }: Props) {
             }}
           >
             {link.children!.map((child) => (
-              <a
-                key={child.label}
-                href={child.href}
-                className="group/item hover:bg-foreground/10 flex items-center rounded-lg bg-transparent px-2.5 py-2.5 transition active:scale-95"
-              >
-                <Image
-                  src={child.icon}
-                  alt={child.label}
-                  width={24}
-                  height={24}
-                  className="pointer-events-none ml-0.5 mr-3 size-4"
-                  draggable={false}
-                />
-                <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
-                  {child.label}
-                </span>
-              </a>
+              <ChildLink
+                key={child.id || child.label}
+                child={child}
+                onLongPress={(childId, childLabel, element) => {
+                  childMenuTriggerRef.current = element;
+                  setChildContextMenu({ childId, childLabel, element });
+                  // Close the hover menu when context menu opens
+                  closeAllMenus();
+                }}
+                isContextMenuOpen={childContextMenu?.childId === child.id}
+              />
             ))}
           </div>,
           document.body,
@@ -340,9 +390,28 @@ export default function LinkTile({ link, draggable = false }: Props) {
         onEdit={handleEdit}
         onAddChild={handleAddChild}
         onEditOrder={startEditing}
+        onDelete={handleDelete}
         position={{ x: 0, y: 0 }}
         triggerRef={tileRef}
       />
+
+      {childContextMenu && (
+        <IconContextMenu
+          key={childContextMenu.childId}
+          isOpen={!!childContextMenu}
+          onClose={() => {
+            setChildContextMenu(null);
+          }}
+          onDelete={() =>
+            handleDeleteChild(
+              childContextMenu.childId,
+              childContextMenu.childLabel,
+            )
+          }
+          position={{ x: 0, y: 0 }}
+          triggerRef={childMenuTriggerRef}
+        />
+      )}
 
       <EditLinkModal
         isOpen={isEditModalOpen}
