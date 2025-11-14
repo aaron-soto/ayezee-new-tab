@@ -4,6 +4,8 @@ import { MenuPosition, calculateMenuPosition } from "@/lib/menuPositioning";
 
 import AddChildLinkModal from "@/components/AddChildLinkModal";
 import AnimatedBorder from "@/components/AnimatedBorder";
+import { CSS } from "@dnd-kit/utilities";
+import DragHandleIcon from "@/components/icons/DragHandleIcon";
 import EditLinkModal from "@/components/EditLinkModal";
 import IconContextMenu from "@/components/IconContextMenu";
 import Image from "next/image";
@@ -12,8 +14,6 @@ import { createPortal } from "react-dom";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useMenuStore } from "@/lib/stores/menuStore";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import DragHandleIcon from "@/components/icons/DragHandleIcon";
 
 export enum IconType {
   Icon,
@@ -116,7 +116,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
       triggerRect,
       288, // w-72 = 18rem = 288px
       menuRect.height || 200,
-      8, // offset below trigger
+      0, // offset below trigger
     );
 
     setMenuPosition(calculatedPosition);
@@ -322,7 +322,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
         onEdit={handleEdit}
         onAddChild={handleAddChild}
         onEditOrder={startEditing}
-        position={{ x: 0, y: 16 }}
+        position={{ x: 0, y: 0 }}
         triggerRef={tileRef}
       />
 
