@@ -90,7 +90,7 @@ export default function AddChildLinkModal({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      className="bg-surface/50 rounded-xl p-6 shadow-2xl backdrop-blur-2xl"
+      className="bg-foreground/5 rounded-xl p-6 shadow-2xl backdrop-blur-2xl"
       sizeClass="max-w-md"
     >
       <h2 className="mb-2 text-xl font-bold text-white">Add Child Link</h2>

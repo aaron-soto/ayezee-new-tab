@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 import IconUploader from "@/components/IconUploader";
 import Image from "next/image";
-import Modal from "@/components/Modal";
+import Modal, { ModalCancel, ModalConfirm } from "@/components/Modal";
 import { useRouter } from "next/navigation";
 
 interface EditLinkModalProps {
@@ -118,7 +118,7 @@ export default function EditLinkModal({
             htmlFor="url"
             className="mb-2 block text-sm font-medium text-neutral-300"
           >
-            URL <span className="text-neutral-500">(optional)</span>
+            URL <span className="text-muted-foreground">(optional)</span>
           </label>
           <input
             type="url"
@@ -128,7 +128,7 @@ export default function EditLinkModal({
             className="input"
             placeholder="https://example.com"
           />
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="text-muted-foreground mt-1 text-xs">
             Leave empty for folder/parent icons
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function EditLinkModal({
             Icon
           </label>
           <div className="flex items-center gap-4">
-            <div className="bg-foreground/5 rounded-lg p-4">
+            <div className="bg-foreground/5 grid aspect-square place-items-center rounded-lg p-4">
               <Image
                 src={displayIcon}
                 alt="Icon"
@@ -157,7 +157,7 @@ export default function EditLinkModal({
               disabled={isLoading}
             />
           </div>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="text-muted-foreground mt-1 text-xs">
             {iconFile
               ? "New icon will replace the current one"
               : "PNG, JPG, or SVG (max 5MB)"}
@@ -173,17 +173,21 @@ export default function EditLinkModal({
 
         {/* Buttons */}
         <div className="flex gap-3 pt-4">
-          <button
-            type="button"
+          <ModalCancel
             onClick={handleClose}
             disabled={isLoading}
-            className="button surface flex-1"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button type="submit" disabled={isLoading} className="button flex-1">
-            {isLoading ? "Saving..." : "Save Changes"}
-          </button>
+          </ModalCancel>
+
+          <ModalConfirm
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="flex-1"
+          >
+            Confirm
+          </ModalConfirm>
         </div>
       </form>
     </Modal>

@@ -36,7 +36,7 @@ export default function Modal({
 
         {/* Modal panel container */}
         <div
-          className="fixed inset-0 z-[10001] flex items-center justify-center p-4"
+          className="bg-surface/5 fixed inset-0 z-[10001] flex items-center justify-center rounded-xl p-4 shadow-2xl backdrop-blur-2xl"
           onClick={onClose}
         >
           <motion.div
