@@ -103,5 +103,5 @@ body {
 }
 
 .input {
-  @apply bg-surface-hover w-full rounded-lg border border-neutral-700 px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600;
+  @apply bg-foreground/5 w-full rounded-lg px-4 py-3 text-white placeholder-neutral-500 focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-400;
 }

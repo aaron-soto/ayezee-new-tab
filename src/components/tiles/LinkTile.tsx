@@ -58,6 +58,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    scale: isDragging ? 1.05 : 1,
   };
 
   // Use centralized menu state
@@ -81,6 +82,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
   const [isAddChildModalOpen, setIsAddChildModalOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
   const tileRef = React.useRef<HTMLDivElement | null>(null);
+  const closeTimeoutRef = React.useRef<number | null>(null);
 
   // Check if this tile's menus are open
   const isHoverMenuOpen = openMenuId === tileId && openMenuType === "hover";
@@ -114,7 +116,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
       triggerRect,
       288, // w-72 = 18rem = 288px
       menuRect.height || 200,
-      16, // offset below trigger
+      8, // offset below trigger
     );
 
     setMenuPosition(calculatedPosition);
@@ -175,7 +177,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
       <AnimatedBorder isAnimating={isAnimating} duration={0.8} />
 
       {/* background box: use a valid hover class and keep z non-negative so it's visible */}
-      <div className="size-18 z-0 min-h-16 min-w-16 rounded-xl bg-white/5 backdrop-blur-2xl hover:bg-white/10"></div>
+      <div className="size-18 bg-foreground/5 hover:bg-foreground/10 z-0 min-h-16 min-w-16 rounded-xl backdrop-blur-2xl"></div>
 
       {/* Drag handle indicator when in edit mode (absolute so it doesn't affect layout) */}
       {draggable && (
@@ -190,7 +192,9 @@ export default function LinkTile({ link, draggable = false }: Props) {
         width={32}
         height={32}
         // explicitly center the icon both horizontally and vertically inside the visual
-        className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-1/2 -translate-y-1/2 select-none"
+        // use the same named group as the outer wrapper (group/tile) so hovering
+        // the tile triggers the scale; add transition utilities for smoothness
+        className="pointer-events-none absolute left-1/2 top-1/2 size-9 -translate-x-1/2 -translate-y-1/2 select-none transition-transform duration-150"
         draggable={false}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         style={{ WebkitUserDrag: "none", WebkitTouchCallout: "none" } as any}
@@ -199,14 +203,29 @@ export default function LinkTile({ link, draggable = false }: Props) {
   );
 
   const onMouseEnter = () => {
+    // If a close timeout is pending (user moving between tile and menu), clear it
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
     if (!isContextMenuOpen && isList && !isEditing) {
       setOpenMenu(tileId, "hover");
     }
   };
 
   const onMouseLeave = () => {
+    // Start a short timeout before closing so mouse movement to the portal menu
+    // doesn't immediately close it when the cursor briefly leaves the tile.
     if (!isContextMenuOpen && openMenuType === "hover" && !isEditing) {
-      closeAllMenus();
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = window.setTimeout(() => {
+        // Only close if the menu still belongs to this tile when the timeout fires
+        if (openMenuId === tileId) {
+          closeAllMenus();
+        }
+        closeTimeoutRef.current = null;
+      }, 180);
     }
   };
 
@@ -244,7 +263,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
         createPortal(
           <div
             ref={menuRef}
-            className="bg-surface fixed z-[9999] w-72 rounded-xl p-1 shadow-lg"
+            className="bg-foreground/5 fixed z-[9999] w-72 rounded-xl p-1 shadow-lg backdrop-blur-2xl"
             style={{
               top: menuPosition.top,
               left: menuPosition.left,
@@ -252,12 +271,31 @@ export default function LinkTile({ link, draggable = false }: Props) {
               opacity: isPositioned ? 1 : 0,
               transition: "opacity 0.15s",
             }}
+            onMouseEnter={() => {
+              // cancel pending close when the user moves into the menu
+              if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+                closeTimeoutRef.current = null;
+              }
+            }}
+            onMouseLeave={() => {
+              // start the same short timeout when leaving the menu
+              if (closeTimeoutRef.current)
+                clearTimeout(closeTimeoutRef.current);
+              closeTimeoutRef.current = window.setTimeout(() => {
+                // Only close if the menu still belongs to this tile when the timeout fires
+                if (openMenuId === tileId) {
+                  closeAllMenus();
+                }
+                closeTimeoutRef.current = null;
+              }, 180);
+            }}
           >
             {link.children!.map((child) => (
               <a
                 key={child.label}
                 href={child.href}
-                className="group/item hover:bg-surface-hover flex items-center rounded-lg px-2.5 py-2.5 transition active:scale-95"
+                className="group/item hover:bg-foreground/10 flex items-center rounded-lg bg-transparent px-2.5 py-2.5 transition active:scale-95"
               >
                 <Image
                   src={child.icon}
