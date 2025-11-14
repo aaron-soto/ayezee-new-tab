@@ -49,7 +49,7 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
     const searchTerm = query.toLowerCase();
     return (
       link.label.toLowerCase().includes(searchTerm) ||
-      link.url?.toLowerCase().includes(searchTerm)
+      link.href?.toLowerCase().includes(searchTerm)
     );
   });
 
