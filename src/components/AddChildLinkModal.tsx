@@ -4,6 +4,7 @@ import Modal, { ModalCancel, ModalConfirm } from "@/components/Modal";
 import { useRef, useState } from "react";
 
 import IconUploader from "@/components/IconUploader";
+import Label from "@/components/Label";
 import { useRouter } from "next/navigation";
 
 interface AddChildLinkModalProps {
@@ -101,12 +102,8 @@ export default function AddChildLinkModal({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Label Input */}
         <div>
-          <label
-            htmlFor="label"
-            className="mb-2 block text-sm font-medium text-neutral-300"
-          >
-            Label
-          </label>
+          <Label htmlFor="label">Label</Label>
+
           <input
             type="text"
             id="label"
@@ -121,12 +118,10 @@ export default function AddChildLinkModal({
 
         {/* URL Input */}
         <div>
-          <label
-            htmlFor="url"
-            className="mb-2 block text-sm font-medium text-neutral-300"
-          >
-            URL
-          </label>
+          <Label htmlFor="url">
+            URL <span className="text-muted-foreground">(optional)</span>
+          </Label>
+
           <input
             type="url"
             id="url"
@@ -140,15 +135,15 @@ export default function AddChildLinkModal({
 
         {/* Icon Upload */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-300">
-            Icon
-          </label>
+          <Label htmlFor="icon">Icon</Label>
+
           <IconUploader
             iconPreview={iconPreview}
             setIconPreview={setIconPreview}
             setIconFile={setIconFile}
             fileInputRef={fileInputRef}
             disabled={isLoading}
+            id="icon"
           />
           <p className="mt-1 text-xs text-neutral-500">
             PNG, JPG, or SVG (max 5MB)

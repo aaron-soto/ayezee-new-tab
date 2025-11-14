@@ -4,6 +4,7 @@ import Modal, { ModalCancel, ModalConfirm } from "@/components/Modal";
 import { useRef, useState } from "react";
 
 import IconUploader from "@/components/IconUploader";
+import Label from "@/components/Label";
 import { useRouter } from "next/navigation";
 
 interface EditLinkModalProps {
@@ -91,12 +92,8 @@ export default function EditLinkModal({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Label Input */}
         <div>
-          <label
-            htmlFor="label"
-            className="mb-2 block text-sm font-medium text-neutral-300"
-          >
-            Label
-          </label>
+          <Label htmlFor="label">Label</Label>
+
           <input
             type="text"
             id="label"
@@ -111,12 +108,10 @@ export default function EditLinkModal({
 
         {/* URL Input */}
         <div>
-          <label
-            htmlFor="url"
-            className="mb-2 block text-sm font-medium text-neutral-300"
-          >
+          <Label htmlFor="url">
             URL <span className="text-muted-foreground">(optional)</span>
-          </label>
+          </Label>
+
           <input
             type="url"
             id="url"
@@ -132,9 +127,8 @@ export default function EditLinkModal({
 
         {/* Icon Upload/Edit */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-300">
-            Icon
-          </label>
+          <Label htmlFor="icon">Icon</Label>
+
           <IconUploader
             iconPreview={iconPreview}
             setIconPreview={setIconPreview}
@@ -142,6 +136,7 @@ export default function EditLinkModal({
             fileInputRef={fileInputRef}
             disabled={isLoading}
             currentIcon={currentIcon}
+            id="icon"
           />
           <p className="text-muted-foreground mt-1 text-xs">
             {iconFile

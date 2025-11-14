@@ -10,6 +10,7 @@ type Props = {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   disabled?: boolean;
   currentIcon?: string; // Optional: for edit mode to show the existing icon
+  id?: string; // Optional: for label accessibility
 };
 
 export default function IconUploader({
@@ -19,6 +20,7 @@ export default function IconUploader({
   fileInputRef,
   disabled = false,
   currentIcon,
+  id,
 }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -106,6 +108,7 @@ export default function IconUploader({
         onChange={handleFileChange}
         className="hidden"
         disabled={disabled}
+        id={id}
       />
     </div>
   );

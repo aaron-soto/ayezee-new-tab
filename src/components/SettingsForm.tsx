@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Label from "@/components/Label";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -90,12 +91,8 @@ export default function SettingsForm({ user }: SettingsFormProps) {
 
       {/* Name Input */}
       <div>
-        <label
-          htmlFor="name"
-          className="mb-2 block text-sm font-medium text-neutral-300"
-        >
-          Display Name
-        </label>
+        <Label htmlFor="name">Display Name</Label>
+
         <input
           type="text"
           id="name"
@@ -108,12 +105,8 @@ export default function SettingsForm({ user }: SettingsFormProps) {
 
       {/* Image URL Input */}
       <div>
-        <label
-          htmlFor="imageUrl"
-          className="mb-2 block text-sm font-medium text-neutral-300"
-        >
-          Profile Image URL
-        </label>
+        <Label htmlFor="imageUrl">Profile Image URL</Label>
+
         <input
           type="url"
           id="imageUrl"
