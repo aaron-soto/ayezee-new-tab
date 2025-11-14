@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 
 import { useMenuStore } from "@/lib/stores/menuStore";
 import { useRouter } from "next/navigation";
+import useSearchStore from "@/lib/stores/searchStore";
 
 interface DraggableGridProps {
   links: LinkItem[];
@@ -25,6 +26,7 @@ interface DraggableGridProps {
 
 export default function DraggableGrid({ links }: DraggableGridProps) {
   const { isEditing, stopEditing } = useMenuStore();
+  const { query } = useSearchStore();
   const router = useRouter();
   const [orderedLinks, setOrderedLinks] = useState<LinkItem[]>(links);
 
@@ -40,6 +42,16 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
   useEffect(() => {
     setOrderedLinks(links);
   }, [links]);
+
+  // Filter links based on search query
+  const filteredLinks = orderedLinks.filter((link) => {
+    if (!query) return true;
+    const searchTerm = query.toLowerCase();
+    return (
+      link.label.toLowerCase().includes(searchTerm) ||
+      link.url?.toLowerCase().includes(searchTerm)
+    );
+  });
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -95,7 +107,7 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
           strategy={rectSortingStrategy}
         >
           <div className="relative z-20 flex w-full flex-wrap items-center justify-start gap-x-6 gap-y-6">
-            {orderedLinks.map((link) => (
+            {filteredLinks.map((link) => (
               <LinkTile
                 key={link.id || link.label}
                 link={link}

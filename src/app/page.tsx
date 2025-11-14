@@ -2,6 +2,7 @@ import AddLinkButton from "@/components/AddLinkButton";
 import AyeZeeLogo from "@/components/AyeZeeLogo";
 import DraggableGrid from "@/components/DraggableGrid";
 import Greeting from "@/components/greeting";
+import SearchBar from "@/components/SearchBar";
 import { TimeDisplay } from "@/components/TimeDisplay";
 import UserMenu from "@/components/UserMenu";
 import { getLinksFromDb } from "@/lib/linksDb";
@@ -29,7 +30,11 @@ export default async function Home() {
       </div>
 
       <div className="mb-8 flex items-center justify-between">
-        <Greeting name={session.user.name} />
+        <div className="flex items-center gap-4">
+          <Greeting name={session.user.name} />
+
+          <SearchBar />
+        </div>
 
         <div className="flex items-center gap-4">
           <AddLinkButton />
