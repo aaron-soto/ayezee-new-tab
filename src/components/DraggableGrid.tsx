@@ -94,7 +94,7 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
           items={orderedLinks.map((link) => link.id || link.label)}
           strategy={rectSortingStrategy}
         >
-          <div className="relative z-20 flex w-full flex-wrap items-center justify-start gap-x-4 gap-y-10 md:gap-x-8 md:gap-y-12">
+          <div className="relative z-20 flex w-full flex-wrap items-center justify-start gap-x-6 gap-y-6">
             {orderedLinks.map((link) => (
               <LinkTile
                 key={link.id || link.label}
