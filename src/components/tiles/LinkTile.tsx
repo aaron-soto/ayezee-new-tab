@@ -88,6 +88,23 @@ export default function LinkTile({ link, draggable = false }: Props) {
   const isHoverMenuOpen = openMenuId === tileId && openMenuType === "hover";
   const isContextMenuOpen = openMenuId === tileId && openMenuType === "context";
 
+  // Clear any pending close timeout when ANY menu opens (not just this tile's)
+  React.useEffect(() => {
+    if (openMenuType === "hover" && closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  }, [openMenuId, openMenuType]);
+
+  // Clear timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const longPress = useLongPress({
     onLongPress: () => {
       if (!isEditing) {
@@ -221,7 +238,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = window.setTimeout(() => {
         // Only close if the menu still belongs to this tile when the timeout fires
-        if (openMenuId === tileId) {
+        if (openMenuId === tileId && openMenuType === "hover") {
           closeAllMenus();
         }
         closeTimeoutRef.current = null;
@@ -284,7 +301,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
                 clearTimeout(closeTimeoutRef.current);
               closeTimeoutRef.current = window.setTimeout(() => {
                 // Only close if the menu still belongs to this tile when the timeout fires
-                if (openMenuId === tileId) {
+                if (openMenuId === tileId && openMenuType === "hover") {
                   closeAllMenus();
                 }
                 closeTimeoutRef.current = null;
