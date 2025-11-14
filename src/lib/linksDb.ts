@@ -93,6 +93,7 @@ export async function updateLink(
   data: Partial<Omit<Link, "id" | "children">>,
 ) {
   // Build update object with only provided fields
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateData: Record<string, any> = {
     updatedAt: new Date(),
   };
