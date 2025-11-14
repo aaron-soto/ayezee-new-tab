@@ -26,6 +26,7 @@ export type LinkItem = {
   label: string;
   icon: string;
   type?: IconType;
+  visitCount?: number;
   children?: LinkItem[];
 };
 
@@ -370,6 +371,15 @@ export default function LinkTile({ link, draggable = false }: Props) {
           onClick={(e) => {
             if (isContextMenuOpen) {
               e.preventDefault();
+            } else if (link.id) {
+              // Track the visit asynchronously
+              fetch("/api/links/visit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ linkId: link.id }),
+              }).catch((error) =>
+                console.error("Failed to track visit:", error),
+              );
             }
           }}
         >

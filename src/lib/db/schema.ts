@@ -77,6 +77,7 @@ export const links = pgTable("links", {
   cloudinaryPublicId: text("cloudinary_public_id"),
   type: iconTypeEnum("type").default("icon"),
   position: integer("position").notNull().default(0),
+  visitCount: integer("visit_count").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

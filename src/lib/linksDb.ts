@@ -14,6 +14,7 @@ export interface Link {
   label: string;
   icon: string;
   type?: IconType;
+  visitCount?: number;
   children?: Link[];
 }
 
@@ -44,6 +45,7 @@ export async function getLinksFromDb(userId?: string): Promise<Link[]> {
       label: link.label,
       icon: link.icon,
       type: link.type === "list" ? IconType.List : IconType.Icon,
+      visitCount: link.visitCount || 0,
       children: children.length
         ? children.map((child) => ({
             id: child.id,
@@ -90,15 +92,21 @@ export async function updateLink(
   linkId: string,
   data: Partial<Omit<Link, "id" | "children">>,
 ) {
+  // Build update object with only provided fields
+  const updateData: Record<string, any> = {
+    updatedAt: new Date(),
+  };
+
+  if (data.href !== undefined) updateData.href = data.href;
+  if (data.label !== undefined) updateData.label = data.label;
+  if (data.icon !== undefined) updateData.icon = data.icon;
+  if (data.type !== undefined) {
+    updateData.type = data.type === IconType.List ? "list" : "icon";
+  }
+
   const [updatedLink] = await db
     .update(links)
-    .set({
-      href: data.href,
-      label: data.label,
-      icon: data.icon,
-      type: data.type === IconType.List ? "list" : "icon",
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(eq(links.id, linkId))
     .returning();
 

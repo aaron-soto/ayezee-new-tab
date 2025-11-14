@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { useMenuStore } from "@/lib/stores/menuStore";
 import { useRouter } from "next/navigation";
 import useSearchStore from "@/lib/stores/searchStore";
+import { useSortStore } from "@/lib/stores/sortStore";
 
 interface DraggableGridProps {
   links: LinkItem[];
@@ -26,6 +27,7 @@ interface DraggableGridProps {
 
 export default function DraggableGrid({ links }: DraggableGridProps) {
   const { isEditing, stopEditing } = useMenuStore();
+  const { sortMode, setSortMode } = useSortStore();
   const { query } = useSearchStore();
   const router = useRouter();
   const [orderedLinks, setOrderedLinks] = useState<LinkItem[]>(links);
@@ -38,10 +40,19 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
     }),
   );
 
-  // Update orderedLinks when links prop changes
+  // Update orderedLinks when links prop changes or sort mode changes
   useEffect(() => {
-    setOrderedLinks(links);
-  }, [links]);
+    if (sortMode === "most-visited") {
+      // Sort by visit count (descending)
+      const sorted = [...links].sort(
+        (a, b) => (b.visitCount || 0) - (a.visitCount || 0),
+      );
+      setOrderedLinks(sorted);
+    } else {
+      // Use custom order (by position)
+      setOrderedLinks(links);
+    }
+  }, [links, sortMode]);
 
   // Filter links based on search query
   const filteredLinks = orderedLinks.filter((link) => {
@@ -62,6 +73,11 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
 
       const newLinks = arrayMove(orderedLinks, oldIndex, newIndex);
       setOrderedLinks(newLinks);
+
+      // When user manually reorders, switch to custom order mode
+      if (sortMode === "most-visited") {
+        setSortMode("custom");
+      }
 
       // Update positions in the database
       await updateLinkPositions(newLinks);
