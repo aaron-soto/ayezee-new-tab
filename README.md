@@ -20,6 +20,7 @@ A modern, customizable new tab dashboard with user authentication and drag-and-d
 ## 🔧 Tech Stack
 
 **Frontend**
+
 - Next.js 15.3 (App Router)
 - React 19
 - Tailwind CSS v4
@@ -28,12 +29,14 @@ A modern, customizable new tab dashboard with user authentication and drag-and-d
 - Zustand (state management)
 
 **Backend & Database**
+
 - PostgreSQL
 - Drizzle ORM
 - NextAuth.js
 - Docker (containerized database)
 
 **Cloud Services**
+
 - Cloudinary (icon storage)
 
 ## 🚀 Getting Started
@@ -47,12 +50,14 @@ A modern, customizable new tab dashboard with user authentication and drag-and-d
 ### Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/aaron-soto/ayezee-new-tab.git
 cd ayezee-new-tab
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
@@ -60,6 +65,7 @@ npm install
 3. **Set up environment variables**
 
 Create a `.env` file:
+
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ayezee_new_tab
 NEXTAUTH_URL=http://localhost:3000
@@ -70,17 +76,20 @@ CLOUDINARY_API_SECRET=your-api-secret
 ```
 
 4. **Start the database**
+
 ```bash
 npm run docker:up
 ```
 
 5. **Initialize the database**
+
 ```bash
 npm run db:push
 npm run db:seed-user  # Optional: seed with sample data
 ```
 
 6. **Run the development server**
+
 ```bash
 npm run dev
 ```
@@ -109,18 +118,21 @@ npm run docker:logs     # View logs
 ## 🎯 Usage
 
 **Adding Links**
+
 1. Click "Add Link" button
 2. Enter label and URL
 3. Upload a custom icon or use default
 4. Save to add to your dashboard
 
 **Organizing Links**
+
 - Drag tiles to reorder them
 - Right-click for context menu options
 - Add child links to create dropdowns
 - Use the search bar to filter links
 
 **Settings**
+
 - Update your profile information
 - Upload a profile picture
 - Customize your display name
