@@ -56,11 +56,18 @@ export default function LinkTile({ link, draggable = false }: Props) {
   } = useSortable({
     id: link.id || link.label,
     disabled: !draggable,
+    transition: {
+      duration: 350, // Slightly longer duration for smoother feel
+      easing: "cubic-bezier(0.25, 0.8, 0.25, 1)", // Smooth ease-in-out curve
+    },
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // Only apply smooth transition to items that aren't being dragged
+    transition: isDragging
+      ? undefined
+      : transition || "transform 350ms cubic-bezier(0.25, 0.8, 0.25, 1)",
     opacity: isDragging ? 0.5 : 1,
     scale: isDragging ? 1.05 : 1,
   };
