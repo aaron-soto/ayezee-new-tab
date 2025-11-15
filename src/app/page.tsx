@@ -3,7 +3,6 @@ import AyeZeeLogo from "@/components/AyeZeeLogo";
 import DraggableGrid from "@/components/DraggableGrid";
 import Greeting from "@/components/greeting";
 import SearchBar from "@/components/SearchBar";
-import SortToggle from "@/components/SortToggle";
 import { TimeDisplay } from "@/components/TimeDisplay";
 import TipsComponent from "@/components/TipsComponent";
 import UserMenu from "@/components/UserMenu";
@@ -39,7 +38,6 @@ export default async function Home() {
         </div>
 
         <div className="flex items-center gap-4">
-          <SortToggle />
           <AddLinkButton />
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Label from "@/components/Label";
+import SortToggle from "@/components/SortToggle";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -117,6 +118,17 @@ export default function SettingsForm({ user }: SettingsFormProps) {
         />
         <p className="mt-1 text-xs text-neutral-500">
           Enter a direct URL to an image
+        </p>
+      </div>
+
+      {/* Sort Order Preference */}
+      <div>
+        <Label htmlFor="sortToggle">Link Sort Order</Label>
+        <div className="mt-2">
+          <SortToggle />
+        </div>
+        <p className="mt-1 text-xs text-neutral-500">
+          Choose how to sort your links on the home page
         </p>
       </div>
 

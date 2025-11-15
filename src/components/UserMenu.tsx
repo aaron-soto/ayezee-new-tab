@@ -6,11 +6,11 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
 import Image from "next/image";
+import SettingsIcon from "@/components/icons/SettingsIcon";
+import SignOutIcon from "@/components/icons/SignOutIcon";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import SignOutIcon from "@/components/icons/SignOutIcon";
-import SettingsIcon from "@/components/icons/SettingsIcon";
 
 export default function UserMenu() {
   const { data: session } = useSession();
@@ -125,7 +125,7 @@ export default function UserMenu() {
               }}
               className="group/item hover:bg-foreground/10 flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-left transition active:scale-95"
             >
-              <SettingsIcon className="mr-3 size-4" />
+              <SettingsIcon className="mr-3 size-5" />
 
               <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
                 Settings
@@ -139,7 +139,7 @@ export default function UserMenu() {
               }}
               className="group/item hover:bg-foreground/10 flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-left transition active:scale-95"
             >
-              <SignOutIcon className="mr-3 size-4" />
+              <SignOutIcon className="mr-3 size-5" />
 
               <span className="text-sm text-neutral-300 transition-colors group-hover/item:text-white">
                 Sign Out

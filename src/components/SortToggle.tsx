@@ -11,7 +11,7 @@ export default function SortToggle() {
       label: "Custom Order",
       icon: (
         <svg
-          className="h-4 w-4"
+          className="size-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -30,7 +30,7 @@ export default function SortToggle() {
       label: "Most Visited",
       icon: (
         <svg
-          className="h-4 w-4"
+          className="size-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -47,15 +47,16 @@ export default function SortToggle() {
   ];
 
   return (
-    <div className="bg-foreground/5 flex rounded-lg p-1 backdrop-blur-2xl">
+    <div className="bg-foreground/5 flex w-full rounded-lg p-1 backdrop-blur-2xl">
       {buttons.map((button) => (
         <button
           key={button.mode}
+          type="button"
           onClick={() => setSortMode(button.mode)}
-          className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all active:scale-95 ${
+          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all ${
             sortMode === button.mode
               ? "bg-foreground/10 text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground cursor-pointer"
           }`}
         >
           {button.icon}
