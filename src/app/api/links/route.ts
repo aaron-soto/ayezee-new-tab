@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
     const href = formData.get("href") as string;
     const type = formData.get("type") as string;
     const iconFile = formData.get("icon") as File | null;
+    const faviconUrl = formData.get("faviconUrl") as string | null;
 
     if (!label) {
       return NextResponse.json({ error: "Label is required" }, { status: 400 });
@@ -60,6 +61,10 @@ export async function POST(request: NextRequest) {
       const uploadResult = await uploadToCloudinary(iconFile, "new-tab/icons");
       iconUrl = uploadResult.url;
       cloudinaryPublicId = uploadResult.publicId;
+    } else if (faviconUrl) {
+      // Use the favicon URL directly (no need to upload to Cloudinary)
+      iconUrl = faviconUrl;
+      // No cloudinaryPublicId since it's an external URL
     } else {
       return NextResponse.json({ error: "Icon is required" }, { status: 400 });
     }
@@ -70,7 +75,7 @@ export async function POST(request: NextRequest) {
       href: href || undefined,
       type: type === "list" ? IconType.List : IconType.Icon,
       userId: session.user.id,
-      cloudinaryPublicId,
+      cloudinaryPublicId: cloudinaryPublicId || undefined,
     });
 
     return NextResponse.json({ link: newLink }, { status: 201 });
@@ -98,6 +103,7 @@ export async function PUT(request: NextRequest) {
     const href = formData.get("href") as string;
     const type = formData.get("type") as string;
     const iconFile = formData.get("icon") as File | null;
+    const faviconUrl = formData.get("faviconUrl") as string | null;
 
     if (!id) {
       return NextResponse.json(
@@ -148,6 +154,33 @@ export async function PUT(request: NextRequest) {
       await db
         .update(links)
         .set({ cloudinaryPublicId: uploadResult.publicId })
+        .where(eq(links.id, id));
+    } else if (faviconUrl) {
+      // Use the favicon URL directly (no need to upload to Cloudinary)
+      updateData.icon = faviconUrl;
+
+      // Get the current link to check if we need to clean up old Cloudinary image
+      const [currentLink] = await db
+        .select()
+        .from(links)
+        .where(eq(links.id, id));
+
+      // Delete old image from Cloudinary if it exists
+      if (currentLink?.cloudinaryPublicId) {
+        try {
+          await deleteFromCloudinary(currentLink.cloudinaryPublicId);
+          console.log(
+            `✅ Deleted old Cloudinary image: ${currentLink.cloudinaryPublicId}`,
+          );
+        } catch (error) {
+          console.error("Error deleting old Cloudinary image:", error);
+        }
+      }
+
+      // Clear the cloudinary public ID since we're using external URL now
+      await db
+        .update(links)
+        .set({ cloudinaryPublicId: null })
         .where(eq(links.id, id));
     }
 

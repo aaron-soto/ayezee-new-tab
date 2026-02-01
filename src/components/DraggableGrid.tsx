@@ -3,6 +3,7 @@
 import {
   DndContext,
   DragEndEvent,
+  DragStartEvent,
   PointerSensor,
   closestCenter,
   useSensor,
@@ -14,7 +15,7 @@ import {
   arrayMove,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useMenuStore } from "@/lib/stores/menuStore";
 import { useRouter } from "next/navigation";
@@ -25,12 +26,21 @@ interface DraggableGridProps {
   links: LinkItem[];
 }
 
+interface PendingSave {
+  type: string;
+  data: { id: string; position: number }[];
+}
+
 export default function DraggableGrid({ links }: DraggableGridProps) {
   const { isEditing, stopEditing } = useMenuStore();
   const { sortMode, setSortMode } = useSortStore();
   const { query } = useSearchStore();
   const router = useRouter();
   const [orderedLinks, setOrderedLinks] = useState<LinkItem[]>(links);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pendingSaveRef = useRef<PendingSave | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -39,6 +49,41 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
       },
     }),
   );
+
+  // Debounced save function - saves changes 1.5 seconds after last drag
+  const debouncedSave = useCallback(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    saveTimeoutRef.current = setTimeout(async () => {
+      if (!pendingSaveRef.current) return;
+
+      const { data } = pendingSaveRef.current;
+      pendingSaveRef.current = null;
+
+      try {
+        await fetch("/api/links/reorder", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ links: data }),
+        });
+        // Only refresh after successful save
+        router.refresh();
+      } catch (error) {
+        console.error("Failed to save changes:", error);
+      }
+    }, 1500);
+  }, []); // Empty deps - router.refresh() doesn't need to be in deps
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Update orderedLinks when links prop changes or sort mode changes
   useEffect(() => {
@@ -64,14 +109,24 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
     );
   });
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragStart = (event: DragStartEvent) => {
+    console.log("🚀 Drag started:", event.active.id, "sortMode:", sortMode);
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    console.log("🎯 Drag ended:", event.active.id, "sortMode:", sortMode);
+    setActiveId(null);
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
+      // Reorder by swapping positions
       const oldIndex = orderedLinks.findIndex((link) => link.id === active.id);
       const newIndex = orderedLinks.findIndex((link) => link.id === over.id);
 
       const newLinks = arrayMove(orderedLinks, oldIndex, newIndex);
+
+      // Optimistically update local state immediately
       setOrderedLinks(newLinks);
 
       // When user manually reorders, switch to custom order mode
@@ -79,26 +134,18 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
         setSortMode("custom");
       }
 
-      // Update positions in the database
-      await updateLinkPositions(newLinks);
-      router.refresh();
-    }
-  };
-
-  const updateLinkPositions = async (links: LinkItem[]) => {
-    try {
-      const updates = links.map((link, index) => ({
-        id: link.id,
-        position: index,
-      }));
-
-      await fetch("/api/links/reorder", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ links: updates }),
-      });
-    } catch (error) {
-      console.error("Failed to update link positions:", error);
+      // Queue the save with debouncing
+      const updates = newLinks
+        .filter((link) => link.id)
+        .map((link, index) => ({
+          id: link.id!,
+          position: index,
+        }));
+      pendingSaveRef.current = {
+        type: "reorder",
+        data: updates,
+      };
+      debouncedSave();
     }
   };
 
@@ -116,18 +163,23 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={orderedLinks.map((link) => link.id || link.label)}
+          items={filteredLinks.map((link) => link.id || link.label)}
           strategy={rectSortingStrategy}
         >
-          <div className="relative z-20 flex w-full flex-wrap items-center justify-start gap-x-6 gap-y-6">
+          <div
+            data-grid-container="true"
+            className="relative z-20 flex w-full flex-wrap items-center justify-start gap-x-6 gap-y-6"
+          >
             {filteredLinks.map((link) => (
               <LinkTile
                 key={link.id || link.label}
                 link={link}
                 draggable={isEditing}
+                linkId={link.id || link.label}
               />
             ))}
           </div>

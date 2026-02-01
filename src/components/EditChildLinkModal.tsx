@@ -1,22 +1,33 @@
 "use client";
 
 import Modal, { ModalCancel, ModalConfirm } from "@/components/Modal";
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import IconUploader from "@/components/IconUploader";
 import Label from "@/components/Label";
-import { useRouter } from "next/navigation";
 import { getFaviconUrl } from "@/lib/favicon";
+import { useRouter } from "next/navigation";
 
-interface AddLinkModalProps {
+interface EditChildLinkModalProps {
   isOpen: boolean;
   onClose: () => void;
+  childId: string;
+  currentLabel: string;
+  currentUrl: string;
+  currentIcon: string;
 }
 
-export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
+export default function EditChildLinkModal({
+  isOpen,
+  onClose,
+  childId,
+  currentLabel,
+  currentUrl,
+  currentIcon,
+}: EditChildLinkModalProps) {
   const router = useRouter();
-  const [label, setLabel] = useState("");
-  const [url, setUrl] = useState("");
+  const [label, setLabel] = useState(currentLabel);
+  const [url, setUrl] = useState(currentUrl);
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconPreview, setIconPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,10 +37,10 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
   const [hasCustomIcon, setHasCustomIcon] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-fetch favicon when URL changes
+  // Auto-fetch favicon when URL changes (only if different from current)
   useEffect(() => {
     const fetchFavicon = async () => {
-      if (!url || hasCustomIcon) return;
+      if (!url || url === currentUrl || hasCustomIcon) return;
 
       // Only fetch if URL contains a valid TLD
       const hasTLD =
@@ -51,12 +62,12 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
     // Debounce the favicon fetch
     const timeoutId = setTimeout(fetchFavicon, 500);
     return () => clearTimeout(timeoutId);
-  }, [url, hasCustomIcon]);
+  }, [url, currentUrl, hasCustomIcon]);
 
   // Handle paste event to immediately fetch favicon
   const handleUrlPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pastedUrl = e.clipboardData.getData("text");
-    if (pastedUrl && !hasCustomIcon) {
+    if (pastedUrl && pastedUrl !== currentUrl && !hasCustomIcon) {
       // Check if pasted text has valid TLD
       const hasTLD =
         /\.(com|org|net|edu|gov|mil|int|io|co|ai|app|dev|tech|me|info|biz|name|pro|museum|coop|aero|xxx|idv|xyz|online|site|store|shop|blog|cloud|digital|email|live|news|today|world|tv|fm|am|fm|uk|us|ca|de|fr|jp|cn|au|br|in|ru|es|it|nl|se|no|dk|fi|pl|ch|at|be|gr|pt|cz|ie|nz|sg|hk|za|ar|mx|cl|co\.uk|co\.jp|co\.kr|co\.nz|co\.za|com\.au|com\.br|com\.cn|com\.mx|gov\.uk|ac\.uk)($|\/|:)/i.test(
@@ -82,54 +93,44 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
 
     try {
       const formData = new FormData();
+      formData.append("id", childId);
       formData.append("label", label.trim());
       formData.append("href", url.trim());
-      formData.append("type", "icon");
 
       // If user uploaded a custom icon, use that
       if (iconFile) {
         formData.append("icon", iconFile);
-      } else if (faviconUrl && !hasCustomIcon) {
-        // Otherwise, use the favicon URL
+      } else if (faviconUrl && !hasCustomIcon && url !== currentUrl) {
+        // If URL changed and we have a new favicon, use it
         formData.append("faviconUrl", faviconUrl);
-      } else {
-        setError("Please select an icon or enter a URL");
-        setIsLoading(false);
-        return;
       }
 
-      const response = await fetch("/api/links", {
-        method: "POST",
+      const response = await fetch("/api/links/children", {
+        method: "PUT",
         body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to create link");
+        throw new Error(data.error || "Failed to update child link");
       }
-
-      // Reset form
-      setLabel("");
-      setUrl("");
-      setIconFile(null);
-      setIconPreview(null);
-      setFaviconUrl(null);
-      setHasCustomIcon(false);
 
       // Close modal and refresh
       onClose();
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create link");
+      setError(
+        err instanceof Error ? err.message : "Failed to update child link",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClose = () => {
-    setLabel("");
-    setUrl("");
+    setLabel(currentLabel);
+    setUrl(currentUrl);
     setIconFile(null);
     setIconPreview(null);
     setError(null);
@@ -147,7 +148,7 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
       className="bg-foreground/5 rounded-xl p-6 shadow-2xl backdrop-blur-2xl"
       sizeClass="max-w-md"
     >
-      <h2 className="mb-6 text-xl font-bold text-white">Add New Link</h2>
+      <h2 className="mb-6 text-xl font-bold text-white">Edit Child Link</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Label Input */}
@@ -168,9 +169,7 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
 
         {/* URL Input */}
         <div>
-          <Label htmlFor="url">
-            URL <span className="text-neutral-500">(optional)</span>
-          </Label>
+          <Label htmlFor="url">URL</Label>
 
           <input
             type="url"
@@ -180,13 +179,11 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
             onPaste={handleUrlPaste}
             className="input"
             placeholder="https://example.com"
+            required
           />
-          <p className="mt-1 text-xs text-neutral-500">
-            Leave empty for folder/parent icons
-          </p>
         </div>
 
-        {/* Icon Upload */}
+        {/* Icon Upload/Edit */}
         <div>
           <Label htmlFor="icon">Icon</Label>
 
@@ -196,14 +193,17 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
             setIconFile={setIconFile}
             fileInputRef={fileInputRef}
             disabled={isLoading}
+            currentIcon={currentIcon}
             id="icon"
             onCustomIconSelected={() => setHasCustomIcon(true)}
             isFetchingFavicon={isFetchingFavicon}
           />
-          <p className="mt-1 text-xs text-neutral-500">
-            {url && !hasCustomIcon
-              ? "Auto-fetched favicon • Upload custom icon to replace"
-              : "PNG, JPG, or SVG (max 5MB)"}
+          <p className="text-muted-foreground mt-1 text-xs">
+            {iconFile
+              ? "New icon will replace the current one"
+              : url && url !== currentUrl && !hasCustomIcon
+                ? "Auto-fetched favicon • Upload custom icon to replace"
+                : "PNG, JPG, or SVG (max 5MB)"}
           </p>
         </div>
 
@@ -219,7 +219,7 @@ export default function AddLinkModal({ isOpen, onClose }: AddLinkModalProps) {
           <ModalCancel onClick={handleClose} disabled={isLoading} />
           <ModalConfirm
             disabled={isLoading}
-            label={isLoading ? "Creating..." : "Create Link"}
+            label={isLoading ? "Saving..." : "Save Changes"}
           />
         </div>
       </form>

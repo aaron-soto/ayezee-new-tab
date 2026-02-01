@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type SortMode = "custom" | "most-visited";
+export type SortMode = "custom" | "most-visited" | "grid";
 
 interface SortState {
   sortMode: SortMode;

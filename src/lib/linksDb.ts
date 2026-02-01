@@ -15,6 +15,8 @@ export interface Link {
   icon: string;
   type?: IconType;
   visitCount?: number;
+  gridRow?: number | null;
+  gridColumn?: number | null;
   children?: Link[];
 }
 
@@ -46,6 +48,8 @@ export async function getLinksFromDb(userId?: string): Promise<Link[]> {
       icon: link.icon,
       type: link.type === "list" ? IconType.List : IconType.Icon,
       visitCount: link.visitCount || 0,
+      gridRow: link.gridRow,
+      gridColumn: link.gridColumn,
       children: children.length
         ? children.map((child) => ({
             id: child.id,

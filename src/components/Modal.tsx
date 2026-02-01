@@ -31,12 +31,12 @@ export default function Modal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[10000] bg-transparent"
         />
 
         {/* Modal panel container */}
         <div
-          className="bg-surface/5 fixed inset-0 z-[10001] flex items-center justify-center rounded-xl p-4 shadow-2xl backdrop-blur-2xl"
+          className="bg-surface/70 rounded-2xl! fixed inset-0 z-[10001] flex items-center justify-center p-4 shadow-2xl"
           onClick={onClose}
         >
           <motion.div

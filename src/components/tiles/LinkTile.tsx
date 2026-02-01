@@ -3,19 +3,17 @@
 import { MenuPosition, calculateMenuPosition } from "@/lib/menuPositioning";
 
 import AddChildLinkModal from "@/components/AddChildLinkModal";
-import AnimatedBorder from "@/components/AnimatedBorder";
-import ChildLink from "@/components/tiles/ChildLink";
 import { CSS } from "@dnd-kit/utilities";
+import ChildLink from "@/components/tiles/ChildLink";
 import DragHandleIcon from "@/components/icons/DragHandleIcon";
+import EditChildLinkModal from "@/components/EditChildLinkModal";
 import EditLinkModal from "@/components/EditLinkModal";
 import IconContextMenu from "@/components/IconContextMenu";
 import Image from "next/image";
 import React from "react";
-import { createPortal } from "react-dom";
-import { useLongPress } from "@/hooks/useLongPress";
 import { useMenuStore } from "@/lib/stores/menuStore";
-import { useSortable } from "@dnd-kit/sortable";
 import { useRouter } from "next/navigation";
+import { useSortable } from "@dnd-kit/sortable";
 
 export enum IconType {
   Icon,
@@ -29,15 +27,18 @@ export type LinkItem = {
   icon: string;
   type?: IconType;
   visitCount?: number;
+  gridRow?: number | null;
+  gridColumn?: number | null;
   children?: LinkItem[];
 };
 
 type Props = {
   link: LinkItem;
   draggable?: boolean;
+  linkId?: string;
 };
 
-export default function LinkTile({ link, draggable = false }: Props) {
+export default function LinkTile({ link, draggable = false, linkId }: Props) {
   const router = useRouter();
   const isList =
     link.type === IconType.List && (link.children?.length ?? 0) > 0;
@@ -57,19 +58,17 @@ export default function LinkTile({ link, draggable = false }: Props) {
     id: link.id || link.label,
     disabled: !draggable,
     transition: {
-      duration: 350, // Slightly longer duration for smoother feel
-      easing: "cubic-bezier(0.25, 0.8, 0.25, 1)", // Smooth ease-in-out curve
+      duration: 350,
+      easing: "cubic-bezier(0.25, 0.8, 0.25, 1)",
     },
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    // Only apply smooth transition to items that aren't being dragged
     transition: isDragging
       ? undefined
       : transition || "transform 350ms cubic-bezier(0.25, 0.8, 0.25, 1)",
     opacity: isDragging ? 0.5 : 1,
-    scale: isDragging ? 1.05 : 1,
   };
 
   // Use centralized menu state
@@ -82,7 +81,6 @@ export default function LinkTile({ link, draggable = false }: Props) {
     startEditing,
   } = useMenuStore();
 
-  const [isAnimating, setIsAnimating] = React.useState(false);
   const [menuPosition, setMenuPosition] = React.useState<MenuPosition>({
     top: 0,
     left: 0,
@@ -91,9 +89,22 @@ export default function LinkTile({ link, draggable = false }: Props) {
   const [isPositioned, setIsPositioned] = React.useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isAddChildModalOpen, setIsAddChildModalOpen] = React.useState(false);
+  const [isEditChildModalOpen, setIsEditChildModalOpen] = React.useState(false);
+  const [isReorderingChildren, setIsReorderingChildren] = React.useState(false);
+  const [reorderedChildren, setReorderedChildren] = React.useState<LinkItem[]>(
+    link.children || [],
+  );
+  const [editingChild, setEditingChild] = React.useState<{
+    id: string;
+    label: string;
+    href: string;
+    icon: string;
+  } | null>(null);
   const [childContextMenu, setChildContextMenu] = React.useState<{
     childId: string;
     childLabel: string;
+    childHref: string;
+    childIcon: string;
     element: HTMLAnchorElement;
   } | null>(null);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
@@ -101,9 +112,16 @@ export default function LinkTile({ link, draggable = false }: Props) {
   const childMenuTriggerRef = React.useRef<HTMLAnchorElement | null>(null);
   const closeTimeoutRef = React.useRef<number | null>(null);
 
+  // Memoize position object to prevent infinite re-renders
+  const contextMenuPosition = React.useMemo(() => ({ x: 0, y: 0 }), []);
+
   // Check if this tile's menus are open
   const isHoverMenuOpen = openMenuId === tileId && openMenuType === "hover";
   const isContextMenuOpen = openMenuId === tileId && openMenuType === "context";
+
+  // Keep hover menu open if child context menu is active
+  const shouldShowHoverMenu =
+    isHoverMenuOpen || !!childContextMenu || isReorderingChildren;
 
   // Clear any pending close timeout when ANY menu opens (not just this tile's)
   React.useEffect(() => {
@@ -122,23 +140,12 @@ export default function LinkTile({ link, draggable = false }: Props) {
     };
   }, []);
 
-  const longPress = useLongPress({
-    onLongPress: () => {
-      if (!isEditing) {
-        setIsAnimating(false);
-        setOpenMenu(tileId, "context");
-      }
-    },
-    onStart: () => {
-      if (!isEditing) {
-        setIsAnimating(true);
-      }
-    },
-    onCancel: () => {
-      setIsAnimating(false);
-    },
-    threshold: 800,
-  });
+  // Update reorderedChildren when link.children changes
+  React.useEffect(() => {
+    if (link.children) {
+      setReorderedChildren(link.children);
+    }
+  }, [link.children]);
 
   const positionMenu = React.useCallback(() => {
     if (!menuRef.current || !tileRef.current) return;
@@ -240,6 +247,56 @@ export default function LinkTile({ link, draggable = false }: Props) {
     setChildContextMenu(null);
   };
 
+  const handleEditChild = (child: {
+    id: string;
+    label: string;
+    href: string;
+    icon: string;
+  }) => {
+    setEditingChild(child);
+    setIsEditChildModalOpen(true);
+    setChildContextMenu(null);
+  };
+
+  const handleReorderChildren = () => {
+    setIsReorderingChildren(true);
+    setChildContextMenu(null);
+    closeAllMenus();
+  };
+
+  const handleSaveChildrenOrder = async () => {
+    try {
+      const childIds = reorderedChildren.map((child) => child.id!);
+      const response = await fetch("/api/links/children/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parentId: link.id, childIds }),
+      });
+
+      if (response.ok) {
+        setIsReorderingChildren(false);
+        router.refresh();
+      } else {
+        alert("Failed to reorder children");
+      }
+    } catch (error) {
+      console.error("Error reordering children:", error);
+      alert("Failed to reorder children");
+    }
+  };
+
+  const handleCancelChildrenReorder = () => {
+    setReorderedChildren(link.children || []);
+    setIsReorderingChildren(false);
+  };
+
+  const moveChild = (fromIndex: number, toIndex: number) => {
+    const newChildren = [...reorderedChildren];
+    const [movedChild] = newChildren.splice(fromIndex, 1);
+    newChildren.splice(toIndex, 0, movedChild);
+    setReorderedChildren(newChildren);
+  };
+
   // Visual content is wrapped in an inner element so we can animate
   // rotation without affecting the outer wrapper's layout/size.
   const Visual = (
@@ -249,8 +306,6 @@ export default function LinkTile({ link, draggable = false }: Props) {
       }`}
       // ensure the visual area fills the tile wrapper
     >
-      <AnimatedBorder isAnimating={isAnimating} duration={0.8} />
-
       {/* background box: use a valid hover class and keep z non-negative so it's visible */}
       <div className="size-18 bg-foreground/5 hover:bg-foreground/10 z-0 min-h-16 min-w-16 rounded-xl backdrop-blur-2xl"></div>
 
@@ -284,7 +339,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
       closeTimeoutRef.current = null;
     }
 
-    if (!isContextMenuOpen && isList && !isEditing) {
+    if (!isContextMenuOpen && isList && !isEditing && !childContextMenu) {
       setOpenMenu(tileId, "hover");
     }
   };
@@ -298,6 +353,9 @@ export default function LinkTile({ link, draggable = false }: Props) {
     if (!isContextMenuOpen && openMenuType === "hover" && !isEditing) {
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = window.setTimeout(() => {
+        // Double-check child context menu isn't open before closing
+        if (childContextMenu) return;
+
         // Only close if the menu still belongs to this tile when the timeout fires
         if (openMenuId === tileId && openMenuType === "hover") {
           closeAllMenus();
@@ -313,6 +371,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
         setNodeRef(node);
         tileRef.current = node;
       }}
+      data-link-id={linkId}
       // give the tile a fixed height so the jiggle rotation doesn't change
       // the layout/row height when tiles are animated or dragged
       className={`group/tile relative flex h-24 select-none flex-col items-center ${
@@ -320,74 +379,174 @@ export default function LinkTile({ link, draggable = false }: Props) {
       }`}
       style={style}
       {...(draggable ? { ...attributes, ...listeners } : {})}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onFocus={() =>
-        !isContextMenuOpen &&
-        isList &&
-        !isEditing &&
-        setOpenMenu(tileId, "hover")
+      onMouseEnter={!draggable ? onMouseEnter : undefined}
+      onMouseLeave={!draggable ? onMouseLeave : undefined}
+      onFocus={
+        !draggable
+          ? () =>
+              !isContextMenuOpen &&
+              isList &&
+              !isEditing &&
+              setOpenMenu(tileId, "hover")
+          : undefined
       }
-      onBlur={() =>
-        !isContextMenuOpen &&
-        openMenuType === "hover" &&
-        !isEditing &&
-        closeAllMenus()
+      onBlur={
+        !draggable
+          ? () =>
+              !isContextMenuOpen &&
+              openMenuType === "hover" &&
+              !isEditing &&
+              closeAllMenus()
+          : undefined
       }
     >
-      {isList &&
-        (isHoverMenuOpen || childContextMenu) &&
-        !isContextMenuOpen &&
-        createPortal(
-          <div
-            ref={menuRef}
-            className="bg-foreground/5 fixed z-[9999] w-72 rounded-xl p-1 shadow-lg backdrop-blur-2xl"
-            style={{
-              top: menuPosition.top,
-              left: menuPosition.left,
-              transform: menuPosition.transform,
-              opacity: isPositioned ? 1 : 0,
-              transition: "opacity 0.15s",
-            }}
-            onMouseEnter={() => {
-              // cancel pending close when the user moves into the menu
-              if (closeTimeoutRef.current) {
-                clearTimeout(closeTimeoutRef.current);
-                closeTimeoutRef.current = null;
-              }
-            }}
-            onMouseLeave={() => {
-              // Don't close hover menu if child context menu is open
-              if (childContextMenu) return;
+      {isList && shouldShowHoverMenu && !isContextMenuOpen && (
+        <div
+          ref={menuRef}
+          className="bg-foreground/5 fixed z-[9999] w-72 rounded-xl p-1 shadow-lg backdrop-blur-2xl"
+          style={{
+            top: menuPosition.top,
+            left: menuPosition.left,
+            transform: menuPosition.transform,
+            opacity: isPositioned ? 1 : 0,
+            transition: "opacity 0.15s",
+            pointerEvents: isPositioned ? "auto" : "none",
+          }}
+          onMouseEnter={() => {
+            // cancel pending close when the user moves into the menu
+            if (closeTimeoutRef.current) {
+              clearTimeout(closeTimeoutRef.current);
+              closeTimeoutRef.current = null;
+            }
+          }}
+          onMouseLeave={() => {
+            // Don't close hover menu if child context menu is open or reordering
+            if (childContextMenu || isReorderingChildren) return;
 
-              // start the same short timeout when leaving the menu
-              if (closeTimeoutRef.current)
-                clearTimeout(closeTimeoutRef.current);
-              closeTimeoutRef.current = window.setTimeout(() => {
-                // Only close if the menu still belongs to this tile when the timeout fires
-                if (openMenuId === tileId && openMenuType === "hover") {
-                  closeAllMenus();
-                }
-                closeTimeoutRef.current = null;
-              }, 180);
-            }}
-          >
-            {link.children!.map((child) => (
+            // start the same short timeout when leaving the menu
+            if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = window.setTimeout(() => {
+              // Only close if the menu still belongs to this tile when the timeout fires
+              if (openMenuId === tileId && openMenuType === "hover") {
+                closeAllMenus();
+              }
+              closeTimeoutRef.current = null;
+            }, 180);
+          }}
+        >
+          {isReorderingChildren ? (
+            <>
+              {reorderedChildren.map((child, index) => (
+                <div
+                  key={child.id || child.label}
+                  className="group/item hover:bg-foreground/10 relative flex items-center overflow-hidden rounded-lg bg-transparent px-2.5 py-2.5 transition"
+                >
+                  <Image
+                    src={child.icon}
+                    alt={child.label}
+                    width={24}
+                    height={24}
+                    className="pointer-events-none relative z-10 ml-0.5 mr-3 size-4"
+                    draggable={false}
+                  />
+                  <span className="relative z-10 flex-1 text-sm text-neutral-300 transition-colors group-hover/item:text-white">
+                    {child.label}
+                  </span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => moveChild(index, Math.max(0, index - 1))}
+                      disabled={index === 0}
+                      className="hover:bg-foreground/10 rounded p-1 disabled:opacity-30"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 15l7-7 7 7"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() =>
+                        moveChild(
+                          index,
+                          Math.min(reorderedChildren.length - 1, index + 1),
+                        )
+                      }
+                      disabled={index === reorderedChildren.length - 1}
+                      className="hover:bg-foreground/10 rounded p-1 disabled:opacity-30"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <div className="border-foreground/10 mt-2 flex gap-2 border-t pt-2">
+                <button
+                  onClick={handleSaveChildrenOrder}
+                  className="flex-1 rounded-lg bg-blue-500/20 px-3 py-2 text-sm text-blue-300 hover:bg-blue-500/30"
+                >
+                  Save Order
+                </button>
+                <button
+                  onClick={handleCancelChildrenReorder}
+                  className="bg-foreground/10 hover:bg-foreground/20 flex-1 rounded-lg px-3 py-2 text-sm text-neutral-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          ) : (
+            (link.children || []).map((child) => (
               <ChildLink
                 key={child.id || child.label}
                 child={child}
                 onLongPress={(childId, childLabel, element) => {
+                  // Clear any pending close timeout to keep hover menu open
+                  if (closeTimeoutRef.current) {
+                    clearTimeout(closeTimeoutRef.current);
+                    closeTimeoutRef.current = null;
+                  }
+
+                  // Keep the hover menu explicitly open while showing child context menu
+                  setOpenMenu(tileId, "hover");
+
                   childMenuTriggerRef.current = element;
-                  setChildContextMenu({ childId, childLabel, element });
-                  // Close the hover menu when context menu opens
-                  closeAllMenus();
+                  const childData = link.children?.find(
+                    (c) => c.id === childId,
+                  );
+                  setChildContextMenu({
+                    childId,
+                    childLabel,
+                    childHref: childData?.href || "",
+                    childIcon: childData?.icon || "",
+                    element,
+                  });
                 }}
                 isContextMenuOpen={childContextMenu?.childId === child.id}
               />
-            ))}
-          </div>,
-          document.body,
-        )}
+            ))
+          )}
+        </div>
+      )}
 
       <IconContextMenu
         isOpen={isContextMenuOpen}
@@ -398,7 +557,7 @@ export default function LinkTile({ link, draggable = false }: Props) {
         onAddChild={handleAddChild}
         onEditOrder={startEditing}
         onDelete={handleDelete}
-        position={{ x: 0, y: 0 }}
+        position={contextMenuPosition}
         triggerRef={tileRef}
       />
 
@@ -408,15 +567,31 @@ export default function LinkTile({ link, draggable = false }: Props) {
           isOpen={!!childContextMenu}
           onClose={() => {
             setChildContextMenu(null);
+            // Restore hover menu after closing child context menu
+            if (isList && !isEditing) {
+              setOpenMenu(tileId, "hover");
+            }
           }}
+          onEdit={() =>
+            handleEditChild({
+              id: childContextMenu.childId,
+              label: childContextMenu.childLabel,
+              href: childContextMenu.childHref,
+              icon: childContextMenu.childIcon,
+            })
+          }
+          onEditOrder={
+            (link.children?.length ?? 0) > 1 ? handleReorderChildren : undefined
+          }
           onDelete={() =>
             handleDeleteChild(
               childContextMenu.childId,
               childContextMenu.childLabel,
             )
           }
-          position={{ x: 0, y: 0 }}
+          position={contextMenuPosition}
           triggerRef={childMenuTriggerRef}
+          zIndex={10000}
         />
       )}
 
@@ -436,14 +611,28 @@ export default function LinkTile({ link, draggable = false }: Props) {
         parentLabel={link.label}
       />
 
+      <EditChildLinkModal
+        isOpen={isEditChildModalOpen}
+        onClose={() => {
+          setIsEditChildModalOpen(false);
+          setEditingChild(null);
+        }}
+        childId={editingChild?.id || ""}
+        currentLabel={editingChild?.label || ""}
+        currentUrl={editingChild?.href || ""}
+        currentIcon={editingChild?.icon || ""}
+      />
+
       {link.href && !isEditing ? (
         <a
           href={link.href}
-          className="duration-1800 relative flex items-center drop-shadow-2xl transition-transform ease-out"
-          style={{
-            transform: isAnimating ? "scale(0.92)" : "scale(1)",
+          className="relative flex items-center drop-shadow-2xl"
+          onContextMenu={(e) => {
+            if (!draggable && !isEditing) {
+              e.preventDefault();
+              setOpenMenu(tileId, "context");
+            }
           }}
-          {...longPress.handlers}
           onClick={(e) => {
             if (isContextMenuOpen) {
               e.preventDefault();
@@ -467,11 +656,13 @@ export default function LinkTile({ link, draggable = false }: Props) {
         </a>
       ) : (
         <div
-          className="duration-1800 relative flex cursor-pointer items-center drop-shadow-2xl transition-transform ease-out"
-          style={{
-            transform: isAnimating ? "scale(0.92)" : "scale(1)",
+          className="relative flex cursor-pointer items-center drop-shadow-2xl"
+          onContextMenu={(e) => {
+            if (!draggable && !isEditing) {
+              e.preventDefault();
+              setOpenMenu(tileId, "context");
+            }
           }}
-          {...longPress.handlers}
           onClick={(e) => {
             e.preventDefault();
             // For folder icons without href, open context menu or hover menu

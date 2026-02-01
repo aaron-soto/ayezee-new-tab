@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Label from "@/components/Label";
-import SortToggle from "@/components/SortToggle";
+import SortSelect from "@/components/SortSelect";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -125,10 +125,10 @@ export default function SettingsForm({ user }: SettingsFormProps) {
       <div>
         <Label htmlFor="sortToggle">Link Sort Order</Label>
         <div className="mt-2">
-          <SortToggle />
+          <SortSelect />
         </div>
         <p className="mt-1 text-xs text-neutral-500">
-          Choose how to sort your links on the home page
+          Choose how to organize your links on the home page
         </p>
       </div>
 

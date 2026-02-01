@@ -11,6 +11,8 @@ type Props = {
   disabled?: boolean;
   currentIcon?: string; // Optional: for edit mode to show the existing icon
   id?: string; // Optional: for label accessibility
+  onCustomIconSelected?: () => void; // Callback when user uploads custom icon
+  isFetchingFavicon?: boolean; // Loading state for favicon fetch
 };
 
 export default function IconUploader({
@@ -21,6 +23,8 @@ export default function IconUploader({
   disabled = false,
   currentIcon,
   id,
+  onCustomIconSelected,
+  isFetchingFavicon = false,
 }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,6 +45,11 @@ export default function IconUploader({
 
     setIconFile(file);
 
+    // Notify parent that user uploaded a custom icon
+    if (onCustomIconSelected) {
+      onCustomIconSelected();
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setIconPreview(reader.result as string);
@@ -52,7 +61,11 @@ export default function IconUploader({
 
   return (
     <div className="flex items-center gap-4">
-      {displayIcon && (
+      {isFetchingFavicon ? (
+        <div className="bg-foreground/5 grid aspect-square place-items-center rounded-lg p-4">
+          <div className="border-foreground/20 border-t-foreground/60 h-8 w-8 animate-spin rounded-full border-2"></div>
+        </div>
+      ) : displayIcon ? (
         <div className="bg-foreground/5 grid aspect-square place-items-center rounded-lg p-4">
           <Image
             src={displayIcon}
@@ -62,7 +75,7 @@ export default function IconUploader({
             className=""
           />
         </div>
-      )}
+      ) : null}
 
       {iconPreview ? (
         <button

@@ -1,10 +1,10 @@
 import AddLinkButton from "@/components/AddLinkButton";
 import AyeZeeLogo from "@/components/AyeZeeLogo";
 import DraggableGrid from "@/components/DraggableGrid";
+import GoldSilverTicker from "@/components/GoldSilverTicker";
 import Greeting from "@/components/greeting";
 import SearchBar from "@/components/SearchBar";
 import { TimeDisplay } from "@/components/TimeDisplay";
-import TipsComponent from "@/components/TipsComponent";
 import UserMenu from "@/components/UserMenu";
 import { getLinksFromDb } from "@/lib/linksDb";
 import { getServerSession } from "@/lib/auth";
@@ -45,7 +45,7 @@ export default async function Home() {
       <DraggableGrid links={links} />
 
       <div className="absolute inset-x-4 bottom-4 flex items-end justify-between">
-        <TipsComponent />
+        <GoldSilverTicker />
 
         <TimeDisplay />
       </div>
