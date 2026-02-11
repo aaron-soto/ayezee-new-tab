@@ -74,7 +74,7 @@ export default function DraggableGrid({ links }: DraggableGridProps) {
         console.error("Failed to save changes:", error);
       }
     }, 1500);
-  }, []); // Empty deps - router.refresh() doesn't need to be in deps
+  }, [router]);
 
   // Cleanup timeout on unmount
   useEffect(() => {

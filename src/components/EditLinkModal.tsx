@@ -449,7 +449,7 @@ export default function EditLinkModal({
             </div>
           ) : (
             <p className="text-muted-foreground text-center text-sm">
-              No child links yet. Click "Add Child" to create one.
+              No child links yet. Click &quot;Add Child&quot; to create one.
             </p>
           )}
         </div>
