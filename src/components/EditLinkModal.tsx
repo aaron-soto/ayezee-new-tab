@@ -316,50 +316,52 @@ export default function EditLinkModal({
         )}
 
         {/* Child Links Management */}
-        {children && children.length > 0 && (
-          <div className="border-foreground/20 bg-foreground/5 mt-6 rounded-lg border-2 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <svg
-                  className="h-4 w-4 text-neutral-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                  />
-                </svg>
-                <Label className="mb-0">Child Links</Label>
+        <div className="border-foreground/20 bg-foreground/5 mt-6 rounded-lg border-2 p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg
+                className="h-4 w-4 text-neutral-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                />
+              </svg>
+              <Label className="mb-0">Child Links</Label>
+              {children && children.length > 0 && (
                 <span className="text-xs text-neutral-500">
                   ({children.length} {children.length === 1 ? "link" : "links"})
                 </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAddChildModalOpen(true)}
-                disabled={isLoading || editingChildId !== null}
-                className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-500/20 px-3 py-1.5 text-xs text-blue-300 hover:bg-blue-500/30 disabled:opacity-50"
-              >
-                <svg
-                  className="h-3.5 w-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Add Child
-              </button>
+              )}
             </div>
+            <button
+              type="button"
+              onClick={() => setIsAddChildModalOpen(true)}
+              disabled={isLoading || editingChildId !== null}
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-500/20 px-3 py-1.5 text-xs text-blue-300 hover:bg-blue-500/30 disabled:opacity-50"
+            >
+              <svg
+                className="h-3.5 w-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Child
+            </button>
+          </div>
+          {children && children.length > 0 ? (
             <div className="border-foreground/20 space-y-2 border-l-2 pl-6">
               {children.map((child) => (
                 <div key={child.id}>
@@ -445,8 +447,12 @@ export default function EditLinkModal({
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-muted-foreground text-center text-sm">
+              No child links yet. Click "Add Child" to create one.
+            </p>
+          )}
+        </div>
 
         {/* Buttons */}
         <div className="flex gap-3 pt-4">
