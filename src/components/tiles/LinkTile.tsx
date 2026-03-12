@@ -602,6 +602,12 @@ export default function LinkTile({ link, draggable = false, linkId }: Props) {
         currentLabel={link.label}
         currentUrl={link.href || ""}
         currentIcon={link.icon}
+        children={link.children?.map((child) => ({
+          id: child.id || "",
+          label: child.label,
+          href: child.href || "",
+          icon: child.icon,
+        }))}
       />
 
       <AddChildLinkModal
