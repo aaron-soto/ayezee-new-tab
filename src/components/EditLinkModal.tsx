@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import AddChildLinkModal from "@/components/AddChildLinkModal";
 import IconUploader from "@/components/IconUploader";
+import Image from "next/image";
 import Label from "@/components/Label";
 import { getFaviconUrl } from "@/lib/favicon";
 import { useRouter } from "next/navigation";
@@ -417,9 +418,11 @@ export default function EditLinkModal({
                   ) : (
                     <div className="border-foreground/10 bg-foreground/5 hover:border-foreground/20 hover:bg-foreground/10 group flex items-center gap-2 rounded-lg border p-3 transition">
                       <div className="bg-foreground/10 flex h-6 w-6 items-center justify-center rounded">
-                        <img
+                        <Image
                           src={child.icon}
                           alt={child.label}
+                          width={16}
+                          height={16}
                           className="h-4 w-4"
                         />
                       </div>
