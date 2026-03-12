@@ -1,5 +1,6 @@
-import { asc, eq, isNull } from "drizzle-orm";
+import { asc, eq, inArray, isNull } from "drizzle-orm";
 import { linkChildren, links } from "./db/schema";
+import { unstable_cache } from "next/cache";
 
 import { db } from "./db/drizzle";
 
@@ -20,28 +21,32 @@ export interface Link {
   children?: Link[];
 }
 
-/**
- * Fetch all links from the database with their children
- * @param userId Optional user ID to filter links by user
- * @returns Array of links with nested children
- */
-export async function getLinksFromDb(userId?: string): Promise<Link[]> {
-  // Fetch all links for the user (or global links if userId is null)
+async function fetchLinksFromDb(userId?: string): Promise<Link[]> {
   const dbLinks = await db.query.links.findMany({
     where: userId ? eq(links.userId, userId) : isNull(links.userId),
     orderBy: [asc(links.position)],
   });
 
-  // Fetch all children for these links
-  const result: Link[] = [];
+  if (dbLinks.length === 0) return [];
 
-  for (const link of dbLinks) {
-    const children = await db.query.linkChildren.findMany({
-      where: eq(linkChildren.parentId, link.id),
-      orderBy: [asc(linkChildren.position)],
-    });
+  // Batch fetch all children in a single query instead of N+1
+  const parentIds = dbLinks.map((link) => link.id);
+  const allChildren = await db.query.linkChildren.findMany({
+    where: inArray(linkChildren.parentId, parentIds),
+    orderBy: [asc(linkChildren.position)],
+  });
 
-    result.push({
+  // Group children by parentId
+  const childrenByParent = new Map<string, typeof allChildren>();
+  for (const child of allChildren) {
+    const existing = childrenByParent.get(child.parentId) || [];
+    existing.push(child);
+    childrenByParent.set(child.parentId, existing);
+  }
+
+  return dbLinks.map((link) => {
+    const children = childrenByParent.get(link.id);
+    return {
       id: link.id,
       href: link.href || undefined,
       label: link.label,
@@ -50,7 +55,7 @@ export async function getLinksFromDb(userId?: string): Promise<Link[]> {
       visitCount: link.visitCount || 0,
       gridRow: link.gridRow,
       gridColumn: link.gridColumn,
-      children: children.length
+      children: children?.length
         ? children.map((child) => ({
             id: child.id,
             href: child.href,
@@ -58,10 +63,22 @@ export async function getLinksFromDb(userId?: string): Promise<Link[]> {
             icon: child.icon,
           }))
         : undefined,
-    });
-  }
+    };
+  });
+}
 
-  return result;
+/**
+ * Fetch all links from the database with their children (cached per user).
+ * Cache is invalidated via revalidateTag(`links-${userId}`) on mutations.
+ */
+export async function getLinksFromDb(userId?: string): Promise<Link[]> {
+  const tag = userId ? `links-${userId}` : "links-global";
+  const cachedFetch = unstable_cache(
+    () => fetchLinksFromDb(userId),
+    [`links`, userId ?? "global"],
+    { tags: [tag] },
+  );
+  return cachedFetch();
 }
 
 /**

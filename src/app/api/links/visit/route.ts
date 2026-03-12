@@ -4,6 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
 import { getServerSession } from "@/lib/auth";
 import { links } from "@/lib/db/schema";
+import { revalidateTag } from "next/cache";
 
 // POST /api/links/visit - Increment visit count for a link
 export async function POST(request: NextRequest) {
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(links.id, linkId));
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error tracking link visit:", error);

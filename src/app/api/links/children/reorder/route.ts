@@ -4,6 +4,7 @@ import { db } from "@/lib/db/drizzle";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth";
 import { linkChildren } from "@/lib/db/schema";
+import { revalidateTag } from "next/cache";
 
 // POST /api/links/children/reorder - Reorder child links
 export async function POST(request: NextRequest) {
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
       ),
     );
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error reordering child links:", error);

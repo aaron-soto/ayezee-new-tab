@@ -4,6 +4,7 @@ import { linkChildren, links } from "@/lib/db/schema";
 import { db } from "@/lib/db/drizzle";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
 // POST /api/links/children - Create a new child link
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
       .set({ type: "list", updatedAt: new Date() })
       .where(eq(links.id, parentId));
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ childLink: newChildLink }, { status: 201 });
   } catch (error) {
     console.error("Error creating child link:", error);
@@ -118,6 +120,7 @@ export async function PUT(request: NextRequest) {
       .where(eq(linkChildren.id, id))
       .returning();
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ childLink: updatedChildLink });
   } catch (error) {
     console.error("Error updating child link:", error);
@@ -150,6 +153,7 @@ export async function DELETE(request: NextRequest) {
     // Delete the child link
     await db.delete(linkChildren).where(eq(linkChildren.id, id));
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting child link:", error);

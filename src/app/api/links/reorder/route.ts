@@ -4,6 +4,7 @@ import { db } from "@/lib/db/drizzle";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth";
 import { links } from "@/lib/db/schema";
+import { revalidateTag } from "next/cache";
 
 // PATCH /api/links/reorder - Update link positions
 export async function PATCH(request: NextRequest) {
@@ -41,6 +42,7 @@ export async function PATCH(request: NextRequest) {
       }),
     );
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error reordering links:", error);

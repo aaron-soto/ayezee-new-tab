@@ -4,6 +4,7 @@ import { db } from "@/lib/db/drizzle";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth";
 import { links } from "@/lib/db/schema";
+import { revalidateTag } from "next/cache";
 
 // PATCH /api/links/grid-position - Update grid position for a link
 export async function PATCH(request: NextRequest) {
@@ -33,6 +34,7 @@ export async function PATCH(request: NextRequest) {
       })
       .where(eq(links.id, linkId));
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error updating grid position:", error);

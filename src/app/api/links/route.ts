@@ -12,6 +12,7 @@ import { db } from "@/lib/db/drizzle";
 import { eq } from "drizzle-orm";
 import { getServerSession } from "@/lib/auth";
 import { links } from "@/lib/db/schema";
+import { revalidateTag } from "next/cache";
 
 // GET /api/links - Fetch user's links
 export async function GET() {
@@ -78,6 +79,7 @@ export async function POST(request: NextRequest) {
       cloudinaryPublicId: cloudinaryPublicId || undefined,
     });
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ link: newLink }, { status: 201 });
   } catch (error) {
     console.error("Error creating link:", error);
@@ -186,6 +188,7 @@ export async function PUT(request: NextRequest) {
 
     const updatedLink = await updateLink(id, updateData);
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ link: updatedLink });
   } catch (error) {
     console.error("Error updating link:", error);
@@ -229,6 +232,7 @@ export async function DELETE(request: NextRequest) {
       }
     }
 
+    revalidateTag(`links-${session.user.id}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error deleting link:", error);
